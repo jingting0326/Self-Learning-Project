@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>Log 分析工具展示</title>
+
+<style>
+body {
+  background-color: #0d1117;
+  color: #c9d1d9;
+  font-family: Arial, sans-serif;
+}
+
+.container {
+  max-width: 900px;
+  margin: auto;
+  padding: 40px;
+}
+
+.card {
+  background: #161b22;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+h1, h2 {
+  border-bottom: 1px solid #30363d;
+  padding-bottom: 5px;
+}
+
+.flow-step {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: fadeIn 0.6s ease forwards;
+}
+
+.flow-step:nth-child(1){animation-delay:0.2s;}
+.flow-step:nth-child(2){animation-delay:0.4s;}
+.flow-step:nth-child(3){animation-delay:0.6s;}
+.flow-step:nth-child(4){animation-delay:0.8s;}
+.flow-step:nth-child(5){animation-delay:1s;}
+
+@keyframes fadeIn {
+  to { opacity:1; transform:translateY(0); }
+}
+
+.flow {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.flow div {
+  background: #0d1117;
+  padding: 10px;
+  border-left: 4px solid #58a6ff;
+}
+
+.btn {
+  background: transparent;
+  color: #58a6ff;
+  border: 1px solid #30363d;
+  padding: 6px 12px;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.btn:hover {
+  background: #161b22;
+}
+
+details {
+  margin-top: 10px;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  padding: 10px;
+}
+
+summary {
+  cursor: pointer;
+  color: #58a6ff;
+}
+
+pre {
+  background: #0d1117;
+  padding: 15px;
+  border-radius: 6px;
+  overflow-x: auto;
+}
+
+/* ✅ Demo 圖 */
+.demo-img {
+  width: 100%;
+  margin-top: 10px;
+  border-radius: 6px;
+  border: 1px solid #30363d;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Log 自動抓取工具</h1>
+
+<div class="card">
+<h2>工具在幫我做什麼？</h2>
+
+<ul>
+<li>找哪台設備出問題</li>
+<li>看問題是什麼類型</li>
+<li>統計出現幾次</li>
+</ul>
+
+<p>👉 把這三件事「全部自動化」</p>
+</div>
+
+<div class="card">
+<h2>自動處理流程</h2>
+
+<div class="flow">
+  <div class="flow-step">① 選擇資料夾（要抓取的來源）</div>
+  <div class="flow-step">② 輸入要找的關鍵字(問題點)</div>
+  <div class="flow-step">③ 系統讀取所有 txt 檔</div>
+  <div class="flow-step">④ 抓出 SN + 問題資訊</div>
+  <div class="flow-step">⑤ 自動整理成 Excel</div>
+</div>
+</div>
+
+<div class="card">
+<h2>📸 操作 Demo</h2>
+
+<h3>Step 1：啟動工具</h3>
+<img src="image1.png" class="demo-img">
+
+<h3>Step 2：選擇資料夾</h3>
+<img src="image2.png" class="demo-img">
+
+<h3>Step 3：輸入關鍵字</h3>
+<img src="image3.png" class="demo-img">
+
+<h3>Step 4：查看結果</h3>
+<img src="image4.png" class="demo-img">
+
+<p>👉 不需要手動整理，系統會自動完成</p>
+</div>
+
+<div class="card">
+<h2>實際效果</h2>
+
+<p>原本：人工一筆一筆看</p>
+<p>現在：直接產出整理好的結果</p>
+
+</div>
+
+<div class="card">
+<h2>輸出範例</h2>
+
+<table border="1" cellpadding="5">
+<tr><th>SN</th><th>問題點</th><th>出現次數</th></tr>
+<tr><td>ABC123</td><td>DIMM1</td><td>3</td></tr>
+</table>
+
+</div>
+
+<div class="card">
+<h2>程式在做什麼（簡單說）</h2>
+
+<ul>
+<li>讀取每個檔案</li>
+<li>找關鍵資訊</li>
+<li>比對關鍵字</li>
+<li>統計出現次數</li>
+</ul>
+
+<button class="btn" onclick="toggleAll()">展開 / 收合 程式碼</button>
+
+<details class="code-block">
+<summary>查看主要程式</summary>
+
+<pre><code>
+Public Sub ScanLogs_SummaryOnly()
+    ' 掃描 log → 擷取 SN → 統計 → 輸出 Excel
+End Sub
+</code></pre>
+
+</details>
+
+</div>
+
+<div class="card">
+<h2>這個工具的價值</h2>
+
+<ul>
+<li>節省大量人工時間</li>
+<li>避免漏掉錯誤</li>
+<li>快速整理資料</li>
+</ul>
+
+</div>
+
+</div>
+
+<script>
+function toggleAll() {
+  const blocks = document.querySelectorAll(".code-block");
+  blocks.forEach(d => d.open = !d.open);
+}
+</script>
+
+</body>
+</html>
