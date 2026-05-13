@@ -121,28 +121,33 @@ pre {
 <h2>自動處理流程</h2>
 
 <div class="flow">
-  <div class="flow-step">① 選擇資料夾（要抓取的來源）</div>
-  <div class="flow-step">② 輸入要找的關鍵字(問題點)</div>
-  <div class="flow-step">③ 系統讀取所有 txt 檔</div>
-  <div class="flow-step">④ 抓出 SN + 問題資訊</div>
-  <div class="flow-step">⑤ 自動整理成 Excel</div>
+  <div class="flow-step">① 貼上要整理的資料到FPY頁面</div>
+  <div class="flow-step">② 點選整理FPY</div>
+  <div class="flow-step">③ 自動把工程師預先要求的篩選條件帶入</div>
+  <div class="flow-step">④ 整理完成的資料自動放入新頁面，並命名</div>
+  <div class="flow-step">⑤ FVT和ICT兩個不同站點頁面標籤分為不同顏色(可選)</div>
+  <div class="flow-step">⑥ 將各機種的測試數和fail數統整於summary</div>
+  <div class="flow-step">⑦ 刪除其他分頁，避免資料越來越多</div>
 </div>
 </div>
 
 <div class="card">
 <h2>📸 操作 Demo</h2>
 
-<h3>Step 1：啟動工具</h3>
-<img src="image1.png" class="demo-img">
+<h3>要求篩選條件</h3>
+<img src="image5.png" class="demo-img">
+  
+<h3>Step 1：貼上要整理的資料到FPY</h3>
+<img src="image6.png" class="demo-img">
 
-<h3>Step 2：選擇資料夾</h3>
-<img src="image2.png" class="demo-img">
+<h3>Step 2：點選整理FPY後自動整理到分頁</h3>
+<img src="image7.png" class="demo-img">
 
-<h3>Step 3：輸入關鍵字</h3>
-<img src="image3.png" class="demo-img">
+<h3>Step 3：個分頁有需要使用的數據</h3>
+<img src="image8.png" class="demo-img">
 
-<h3>Step 4：查看結果</h3>
-<img src="image4.png" class="demo-img">
+<h3>Step 4：查看所有結果</h3>
+<img src="image9.png" class="demo-img">
 
 <p>👉 不需要手動整理，系統會自動完成</p>
 </div>
@@ -150,359 +155,307 @@ pre {
 <div class="card">
 <h2>實際效果</h2>
 
-<p>原本：人工一筆一筆看</p>
+<p>原本：人工分機種慢慢篩選</p>
 <p>現在：直接產出整理好的結果</p>
 
 </div>
 
-<div class="card">
-<h2>輸出範例</h2>
-
-<table border="1" cellpadding="5">
-<tr><th>SN</th><th>問題點</th><th>出現次數</th></tr>
-<tr><td>ABC123</td><td>DIMM1</td><td>3</td></tr>
-</table>
-
-</div>
 
 <div class="card">
-<h2>程式在做什麼（簡單說）</h2>
+<h2>程式碼:統整FPY</h2>
 
 <ul>
-<li>讀取每個檔案</li>
-<li>找關鍵資訊</li>
-<li>比對關鍵字</li>
-<li>統計出現次數</li>
+<li>讀取FPY資訊</li>
+<li>按照要求條件篩選</li>
+<li>貼上篩選完資料到新的頁面</li>
 </ul>
 
-<button class="btn" onclick="toggleAll()">展開 / 收合 程式碼</button>
+<button class="btn" onclick="toggleAll()">展開 / 收合 程式碼(有保護資訊)</button>
 
 <details class="code-block">
 <summary>查看主要程式</summary>
 
 <pre><code>
-Option Explicit
-
-'=== 檔案讀取 ===
-Private Function ReadAllLines(ByVal filePath As String) As Variant
-    Dim fso As Object, ts As Object, lines As Collection, line As String
-    Set fso = CreateObject("Scripting.FileSystemObject")
-    If Not fso.FileExists(filePath) Then
-        ReadAllLines = Array()
-        Exit Function
-    End If
-    Set ts = fso.OpenTextFile(filePath, 1, False)
-    Set lines = New Collection
-    Do While Not ts.AtEndOfStream
-        line = ts.ReadLine
-        lines.Add line
-    Loop
-    ts.Close
-    Dim arr() As String, i As Long
-    ReDim arr(0 To lines.Count - 1)
-    For i = 1 To lines.Count
-        arr(i - 1) = lines(i)
-    Next
-    ReadAllLines = arr
-End Function
-
-'===字串處理 ===
-Private Function TrimBoth(ByVal s As String) As String
-    TrimBoth = Trim$(s)
-End Function
-
-Private Function TryExtractSN(ByVal line As String, ByRef outSN As String) As Boolean
-    Const key As String = "Board Serial Number:"
-    Dim p As Long
-    p = InStr(1, line, key, vbBinaryCompare)
-    If p <= 0 Then
-        TryExtractSN = False
-        Exit Function
-    End If
-    outSN = TrimBoth(Mid$(line, p + Len(key)))
-    TryExtractSN = (Len(outSN) > 0)
-End Function
-
-Private Function ContainsPattern(ByVal text As String, ByVal pattern As String) As Boolean
-    Dim t As String, p As String
-    t = UCase$(text)
-    p = UCase$(pattern)
-    ContainsPattern = (t Like "*" & p & "*")
-End Function
-
-' 逗號分隔字串轉陣列
-Private Function ParseCsvList(ByVal s As String, ByVal defaultText As String) As Variant
-    Dim raw As String
-    raw = Trim$(s)
-    If Len(raw) = 0 Then raw = defaultText
-    
-    Dim parts() As String
-    parts = Split(raw, ",")
-    
-    Dim i As Long, buf As Collection
-    Set buf = New Collection
-    For i = LBound(parts) To UBound(parts)
-        Dim token As String
-        token = Trim$(parts(i))
-        If Len(token) > 0 Then buf.Add token
-    Next
-    
-    If buf.Count = 0 Then buf.Add defaultText
-    
-    Dim arr() As String
-    ReDim arr(0 To buf.Count - 1)
-    For i = 1 To buf.Count
-        arr(i - 1) = buf(i)
-    Next
-    ParseCsvList = arr
-End Function
-
-'===資料夾選取===(使用路徑輸入)
-Private Function GetFolderPathsFromSheet(ByVal ws As Worksheet) As Collection
-    Dim paths As New Collection
-    Dim r As Long: r = 2
-    Do While Len(Trim$(CStr(ws.Cells(r, 1).Value))) > 0
-        paths.Add Trim$(CStr(ws.Cells(r, 1).Value))
-        r = r + 1
-    Loop
-    Set GetFolderPathsFromSheet = paths
-End Function
-'===資料夾選取===(使用視窗選取)
-Private Function PickMultipleFolders() As Collection
-    Dim result As New Collection
-    On Error GoTo PickerFallback
-    Dim fd As FileDialog
-    Set fd = Application.FileDialog(msoFileDialogFolderPicker)
-    With fd
-        .Title = "選取要掃描的資料夾"
-        .AllowMultiSelect = True
-        If .Show = -1 Then
-            Dim i As Long
-            For i = 1 To .SelectedItems.Count
-                result.Add .SelectedItems(i)
-            Next
-        End If
-    End With
-    Set PickMultipleFolders = result
-    Exit Function
-PickerFallback:
-    Dim fd2 As FileDialog
-    Set fd2 = Application.FileDialog(msoFileDialogFolderPicker)
-    With fd2
-        .Title = "選取要掃描的資料夾"
-        .AllowMultiSelect = False
-        If .Show = -1 Then
-            result.Add .SelectedItems(1)
-        End If
-    End With
-    Set PickMultipleFolders = result
-End Function
-
-'===  主程式 ===
-Public Sub ScanLogs_SummaryOnly()
-    Dim ws As Worksheet
-    Set ws = ActiveSheet
-    
-    ' --- (Step 1) 取得資料夾清單 ---
-    Dim folderPaths As Collection
-    Set folderPaths = GetFolderPathsFromSheet(ws)
-    If folderPaths.Count = 0 Then
-        Set folderPaths = PickMultipleFolders()
-        If folderPaths.Count = 0 Then
-            MsgBox "未提供任何資料夾路徑。請在 A2 開始貼上路徑，或在提示視窗中選擇資料夾。", vbExclamation
-            Exit Sub
-        End If
-    End If
-    
-    ' --- (Step 2) 取得使用者輸入的關鍵字 ---
-    Dim rawIssueTypes As String, rawIssuePoints As String
-    rawIssueTypes = InputBox( _
-        Prompt:="輸入要擷取的問題類型（以逗號分隔)" & vbCrLf & _
-                "例如：DIMM1,DIMM2 ", _
-        Title:="輸入問題類型", Default:="DIMM1,DIMM2")
-    rawIssuePoints = InputBox( _
-        Prompt:="輸入要擷取的問題點（以逗號分隔)" & vbCrLf & _
-                "例如：Device,Node", _
-        Title:="輸入問題點", Default:="Device,Node")
-    
-    If rawIssueTypes = "" Or rawIssuePoints = "" Then Exit Sub
-    
-    Dim issueTypes As Variant, issuePoints As Variant
-    issueTypes = ParseCsvList(rawIssueTypes, "DIMM1")
-    issuePoints = ParseCsvList(rawIssuePoints, "Device,Node")
-    
-    ' --- (Step 3) 清空輸出區  ---
-    ws.Range("A6:Z100000").Clear
-    ws.Range("F3:G10").ClearContents ' 清除舊的統計數據
-    
-    ' 設定表頭
-    ws.Range("A5:D5").Value = Array("SN", "問題點", "問題類型", "發生次數")
-    ws.Range("A5:D5").Font.Bold = True
-    
-    ' --- (Step 4) 開始掃描檔案 ---
-    Dim fso As Object: Set fso = CreateObject("Scripting.FileSystemObject")
-    Dim counts As Object: Set counts = CreateObject("Scripting.Dictionary")
-    counts.CompareMode = 1
-    
-    Dim totalFiles As Long: totalFiles = 0
-    Dim totalKeys As Long
-    
-    Application.ScreenUpdating = False
-    Application.Calculation = xlCalculationManual '自動運算格->手動運算格(增進運行速度)
-    
-    Dim folderPath As Variant
-    For Each folderPath In folderPaths
-        If fso.FolderExists(CStr(folderPath)) Then
-            Dim folder As Object, file As Object
-            Set folder = fso.GetFolder(CStr(folderPath))
-            For Each file In folder.Files
-            '讀入檔案(確認總檔數)
-                If LCase$(fso.GetExtensionName(file.Name)) = "txt" Then
-                    totalFiles = totalFiles + 1
-                    
-                    Dim lines As Variant
-                    lines = ReadAllLines(file.Path)
-                    If Not IsArray(lines) Then GoTo NextFile
-                    '擷取SN
-                    Dim sn As String: sn = ""
-                    Dim i As Long
-                    
-                    ' 逐行讀取
-                    For i = LBound(lines) To UBound(lines)
-                        Dim line As String
-                        line = lines(i)
-                        
-                        ' A. 抓取 SN (每個檔案只抓一次)
-                        If Len(sn) = 0 Then
-                            Dim snTmp As String
-                            If TryExtractSN(line, snTmp) Then sn = snTmp
-                        End If
-                        
-                        ' B. 檢查是否包含關鍵字
-                        Dim pointsFound As Collection: Set pointsFound = New Collection
-                        Dim typesFound As Collection: Set typesFound = New Collection
-                        
-                        Dim p As Long, t As Long
-                        For p = LBound(issuePoints) To UBound(issuePoints)
-                            If ContainsPattern(line, CStr(issuePoints(p))) Then
-                                pointsFound.Add CStr(issuePoints(p))
-                            End If
-                        Next
-                        For t = LBound(issueTypes) To UBound(issueTypes)
-                            If ContainsPattern(line, CStr(issueTypes(t))) Then
-                                typesFound.Add CStr(issueTypes(t))
-                            End If
-                        Next
-                        
-                        ' C. 若同時命中，加入 Dictionary 計數
-                        If pointsFound.Count > 0 And typesFound.Count > 0 Then
-                            Dim pp As Long, tt As Long, key As String
-                            For pp = 1 To pointsFound.Count
-                                For tt = 1 To typesFound.Count
-                                    ' Dictionary 預設依加入順序排列，因此同檔(同SN)的資料會自然排在一起
-                                    key = UCase$(sn) & "|" & UCase$(CStr(pointsFound(pp))) & "|" & UCase$(CStr(typesFound(tt)))
-                                    If counts.Exists(key) Then
-                                        counts(key) = counts(key) + 1
-                                    Else
-                                        counts.Add key, 1
-                                    End If
-                                Next tt
-                            Next pp
-                        End If
-                    Next i
-                End If
-NextFile:
-            Next file
-        End If
-    Next folderPath
-    
-    ' --- (Step 5) 寫回 Excel ---
-    Dim rowOut As Long: rowOut = 6
-    Dim k As Variant, parts() As String
-    
-    For Each k In counts.Keys
-        parts = Split(CStr(k), "|") ' 拆解 Key
-        ws.Cells(rowOut, 1).Value = parts(0) ' SN
-        ws.Cells(rowOut, 2).Value = parts(1) ' 問題點
-        ws.Cells(rowOut, 3).Value = parts(2) ' 問題類型
-        ws.Cells(rowOut, 4).Value = counts(k)
-        rowOut = rowOut + 1
-    Next k
-    
-    totalKeys = counts.Count
+Sub SplitDataToSheets()
+Dim ws As Worksheet
+    Dim newWs As Worksheet
     Dim lastRow As Long
-    lastRow = rowOut - 1
+    Dim rng As Range
+    Dim sumI As Double, sumJ As Double, sumK As Double
     
-    ' --- (Step 6) 顏色標記與計算唯一 SN 總數 ---
-    Dim totalUniqueSN As Long: totalUniqueSN = 0
+    Set ws = ThisWorkbook.Sheets("FPY")
     
-    If lastRow >= 6 Then
-        ' 定義顏色：淺藍 / 淺黃
-        Dim colorBlue As Long: colorBlue = RGB(221, 235, 247)
-        Dim colorYellow As Long: colorYellow = RGB(255, 255, 204)
+    '原始資料sheet
+    
+    lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
+    '=====ICT=====
+    Call CreateSheetData(ws, "機種S", "PCM", "ICT", "ICT_Sandhawk")
+    Call CreateSheetData(ws, "機種A", "PCM", "ICT", "ICT_Arapaho")
+    Call CreateSheetData(ws, "機種D", "PCM", "ICT", "ICT_Dagger2")
+    Call CreateSheetData(ws, "機種T", "IOM12", "ICT", "ICT_Tahiti")
+    Call CreateSheetData(ws, "機種T", "Drawer", "ICT", "ICT_Fisher Drawer")
+    Call CreateSheetData(ws, "機種A", "PCM", "ICT", "ICT_Alder")
+    Call CreateSheetData(ws, "機種K", "PCM", "ICT", "ICT_Katana")
+    Call CreateSheetData(ws, "機種D", "PCM", "ICT", "ICT_Dagger")
+    
+     '=====FVT=====
+    Call CreateSheetData(ws, "機種S", "PCM", "FVT", "FVT_Sandhawk")
+    Call CreateSheetData(ws, "機種A", "PCM", "FVT", "FVT_Arapaho")
+    Call CreateSheetData(ws, "機種D", "PCM", "FVT", "FVT_Dagger2")
+    Call CreateSheetData(ws, "機種T", "IOM12", "FVT", "FVT_Tahiti")
+    Call CreateSheetData(ws, "機種T", "Chassis", "FVT", "FVT_Trafford_Fisher")
+    Call CreateSheetData(ws, "機種T", "Drawer", "FVT", "FVT_Fisher_Drawer")
+    Call CreateSheetData(ws, "機種A", "Chassis", "FVT", "FVT_Alder")
+    Call CreateSheetData(ws, "機種K", "PCM", "FVT", "FVT_Katana")
+    Call CreateSheetData(ws, "機種D", "PCM", "FVT", "FVT_Dagger")
+    
+    End Sub
+
+
+Sub CreateSheetData(ws As Worksheet, Cvalue As String, Evalue As String, Gvalue As String, sheetName As String)
+Dim newWs As Worksheet
+    Dim lastRow As Long
+    Dim pasteRow As Long
+    Dim i As Long
+    
+    Dim sumI As Double, sumJ As Double, sumK As Double
+    
+    '刪除舊sheet
+    On Error Resume Next
+    Application.DisplayAlerts = False
+    Worksheets(sheetName).Delete
+    Application.DisplayAlerts = True
+    On Error GoTo 0
+    
+    '建立新sheet
+    Set newWs = Worksheets.Add
+    newWs.Name = sheetName
+    
+    '標題複製
+    ws.Rows(1).Copy Destination:=newWs.Rows(1)
+    lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
+    pasteRow = 2
+    
+    '====篩選條件====
+    For i = 2 To lastRow
         
-        Dim useBlue As Boolean: useBlue = False ' 初始狀態
-        Dim curSN As String, prevSN As String
-        Dim rRow As Long
-        
-        prevSN = "" ' 用來記錄上一列的 SN
-        
-        For rRow = 6 To lastRow
-            curSN = Trim$(CStr(ws.Cells(rRow, 1).Value))
+        If ws.Cells(i, 3).Value = Cvalue _
+        And ws.Cells(i, 5).Value = Evalue _
+        And ws.Cells(i, 7).Value = Gvalue _
+        And ws.Cells(i, 4).Value <> "TOTAL" Then
             
-            ' 如果 SN 改變了 (或者遇到第一筆資料)
-            If curSN <> prevSN Then
-                totalUniqueSN = totalUniqueSN + 1 ' 發現新 SN，計數+1
-                useBlue = Not useBlue             ' 切換顏色開關
-                prevSN = curSN                    ' 更新上一列 SN
+            ws.Rows(i).Copy Destination:=newWs.Rows(pasteRow)
+            pasteRow = pasteRow + 1
+            
+            '====計算總和====
+            If IsNumeric(ws.Cells(i, 11).Value) Then
+                sumK = sumK + ws.Cells(i, 11).Value
             End If
             
-            ' 填入顏色 (只填 SN 欄位)
-            If useBlue Then
-                ws.Cells(rRow, 1).Interior.Color = colorBlue
-            Else
-                ws.Cells(rRow, 1).Interior.Color = colorYellow
+            If IsNumeric(ws.Cells(i, 10).Value) Then
+                sumJ = sumJ + ws.Cells(i, 10).Value
             End If
-        Next rRow
-    End If
+            
+            If IsNumeric(ws.Cells(i, 9).Value) Then
+                sumI = sumI + ws.Cells(i, 9).Value
+            End If
+            
+            
+        End If
+        
+    Next i
     
-    ' --- (Step 7) 顯示統計結果 ---
-    Application.ScreenUpdating = True
-    Application.Calculation = xlCalculationAutomatic
+    '====填入統計結果====
+    newWs.Cells(2, 13).Value = "K總和"
+    newWs.Cells(2, 14).Value = sumK
     
-    ws.Range("F3").Value = "總檔案數:"
-    ws.Range("G3").Value = totalFiles
+    newWs.Cells(3, 13).Value = "J總和"
+    newWs.Cells(3, 14).Value = sumJ
     
-    ws.Range("F5").Value = "總列數(資料列):"
-    ws.Range("G5").Value = totalKeys
+    newWs.Cells(4, 13).Value = "I總和"
+    newWs.Cells(4, 14).Value = sumI
     
-    ws.Range("F4").Value = "SN 總數(不重複):"
-    ws.Range("G4").Value = totalUniqueSN
-    ws.Range("G4").Font.Bold = True
-    '更改SN格式(避免亂碼)
-    Columns("A:A").Select
-    Selection.NumberFormatLocal = "0.00_);[紅色](0.00)"
-    Selection.NumberFormatLocal = "0.0_);[紅色](0.0)"
-    Selection.NumberFormatLocal = "0_);[紅色](0)"
+    newWs.Cells(5, 13).Value = "K-J"
+    newWs.Cells(5, 14).Value = sumK - sumJ
     
-    MsgBox "處理完成！" & vbCrLf & _
-           "----------------" & vbCrLf & _
-           "掃描檔案數：" & totalFiles & vbCrLf & _
-           "SN 數：" & totalUniqueSN & vbCrLf & _
-           "問題總列數：" & totalKeys, vbInformation
+
+
 End Sub
 </code></pre>
 
 </details>
 
 </div>
+<div class="card">
+<h2>程式碼:增加頁面標籤顏色</h2>
 
+<ul>
+<li>將FVT和ICT兩個站點的資料增加不同頁面標籤的顏色</li>
+<li>增加防呆機制</li>
+</ul>
+
+<button class="btn" onclick="toggleAll()">展開 / 收合 程式碼</button>
+
+<details class="code-block">
+<summary>查看主要程式</summary>
+<pre><code>
+Sub SetSheetTabColor()
+
+    Dim ws As Worksheet
+    
+    For Each ws In ThisWorkbook.Worksheets
+        
+        'FVT
+        If InStr(1, ws.Name, "FVT", vbTextCompare) > 0 Then
+            ws.Tab.Color = RGB(255, 255, 204)
+        
+        'ICT
+        ElseIf InStr(1, ws.Name, "ICT", vbTextCompare) > 0 Then
+            ws.Tab.Color = RGB(204, 255, 255)
+        
+        '其他 → 不上色
+        Else
+            ws.Tab.ColorIndex = xlColorIndexNone
+        End If
+        
+    Next ws
+    
+    MsgBox "分頁標籤顏色已完成", vbInformation
+
+End Sub
+
+
+  
+</code></pre>
+</details>
+</div>
+  <div class="card">
+<h2>程式碼:統整結果</h2>
+
+<ul>
+<li>將各機種的測試數量和fail數量統整於一個頁面</li>
+<li>輸出結果符合工程師要求順序</li>
+</ul>
+
+<button class="btn" onclick="toggleAll()">展開 / 收合 程式碼</button>
+
+<details class="code-block">
+<summary>查看主要程式</summary>
+<pre><code>
+  Sub CreateSummaryTable()
+
+    Dim ws As Worksheet
+    Dim sumWs As Worksheet
+    Dim lastRow As Long
+    Dim r As Long
+    
+    Dim valI As Double, valJ As Double, valK As Double
+    
+    '===== 刪除舊 Summary =====
+    On Error Resume Next
+    Application.DisplayAlerts = False
+    Worksheets("Summary").Delete
+    Application.DisplayAlerts = True
+    On Error GoTo 0
+    
+    '===== 建立 Summary =====
+    Set sumWs = Worksheets.Add
+    sumWs.Name = "Summary"
+    
+    '===== 標題 =====
+    sumWs.Cells(1, 1).Value = "Sheet名稱"
+    sumWs.Cells(1, 2).Value = "Tested"
+    sumWs.Cells(1, 3).Value = "Passed"
+    sumWs.Cells(1, 4).Value = "Failures"
+    
+    r = 2
+    
+    '===== 掃所有分頁 =====
+    For Each ws In ThisWorkbook.Worksheets
+        
+        '跳過 主頁 / 原始資料 / Summary
+        If ws.Name <> "使用方法" And ws.Name <> "FPY" And ws.Name <> "Summary" Then
+          
+            lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
+            
+            On Error Resume Next
+            
+            valK = ws.Cells(2, 14).Value ' K總和
+            valJ = ws.Cells(3, 14).Value ' J總和
+            valI = ws.Cells(4, 14).Value     ' I總和
+            
+            On Error GoTo 0
+            
+            '寫入 Summary
+            sumWs.Cells(r, 1).Value = ws.Name
+            sumWs.Cells(r, 2).Value = valK - valJ
+            sumWs.Cells(r, 3).Value = valK - valJ - valI
+            sumWs.Cells(r, 4).Value = valI
+            
+            r = r + 1
+            
+        End If
+        
+    Next ws
+    
+    '===== 美化 =====
+    sumWs.Columns("A:D").AutoFit
+    
+    '標題上色
+    sumWs.Rows(1).Font.Bold = True
+    sumWs.Rows(1).Interior.Color = RGB(200, 200, 200)
+    
+    MsgBox "Summary彙整完成", vbInformation
+
+End Sub
+
+</code></pre>
+</details>
+</div>
+<div class="card">
+<h2>程式碼:刪除其他分頁</h2>
+
+<ul>
+<li>新的一周要貼上新的FPY時能直接刪除舊有分頁</li>
+<li>減少手動刪除時間</li>
+</ul>
+
+<button class="btn" onclick="toggleAll()">展開 / 收合 程式碼</button>
+
+<details class="code-block">
+<summary>查看主要程式</summary>
+<pre><code>
+Sub DeleteExtraSheets_KeepFPY()
+Dim ws As Worksheet
+    
+    Application.DisplayAlerts = False
+    Application.ScreenUpdating = False
+    
+    For Each ws In ThisWorkbook.Worksheets
+        
+        '只保留「使用方法」和「FPY」
+        If ws.Name <> "使用方法" And ws.Name <> "FPY" Then
+            ws.Delete
+        End If
+        
+    Next ws
+    
+    Application.DisplayAlerts = True
+    Application.ScreenUpdating = True
+    
+    MsgBox "已刪除其他分頁", vbInformation
+
+End Sub
+
+  
+</code></pre>
+</details>
+</div>
 <div class="card">
 <h2>這個工具的價值</h2>
 
 <ul>
 <li>節省大量人工時間</li>
-<li>避免漏掉錯誤</li>
 <li>快速整理資料</li>
 </ul>
 
