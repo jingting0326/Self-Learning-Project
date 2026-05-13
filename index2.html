@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>自動統整資料</title>
+
+<style>
+body {
+  background-color: #0d1117;
+  color: #c9d1d9;
+  font-family: Arial, sans-serif;
+}
+
+.container {
+  max-width: 900px;
+  margin: auto;
+  padding: 40px;
+}
+
+.card {
+  background: #161b22;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+h1, h2 {
+  border-bottom: 1px solid #30363d;
+  padding-bottom: 5px;
+}
+
+.flow-step {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: fadeIn 0.6s ease forwards;
+}
+
+.flow-step:nth-child(1){animation-delay:0.2s;}
+.flow-step:nth-child(2){animation-delay:0.4s;}
+.flow-step:nth-child(3){animation-delay:0.6s;}
+.flow-step:nth-child(4){animation-delay:0.8s;}
+.flow-step:nth-child(5){animation-delay:1s;}
+
+@keyframes fadeIn {
+  to { opacity:1; transform:translateY(0); }
+}
+
+.flow {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.flow div {
+  background: #0d1117;
+  padding: 10px;
+  border-left: 4px solid #58a6ff;
+}
+
+.btn {
+  background: transparent;
+  color: #58a6ff;
+  border: 1px solid #30363d;
+  padding: 6px 12px;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.btn:hover {
+  background: #161b22;
+}
+
+details {
+  margin-top: 10px;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  padding: 10px;
+}
+
+summary {
+  cursor: pointer;
+  color: #58a6ff;
+}
+
+pre {
+  background: #0d1117;
+  padding: 15px;
+  border-radius: 6px;
+  overflow-x: auto;
+}
+
+/* ✅ Demo 圖 */
+.demo-img {
+  width: 100%;
+  margin-top: 10px;
+  border-radius: 6px;
+  border: 1px solid #30363d;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>自動統整資料</h1>
+
+<div class="card">
+<h2>工具在幫我做什麼？</h2>
+
+<ul>
+<li>節省人工篩選機種的時間</li>
+<li>自動把篩選資料分頁面</li>
+<li>統計各個機種的結果</li>
+</ul>
+
+<p>👉 把這三件事「全部自動化」</p>
+</div>
+
+<div class="card">
+<h2>自動處理流程</h2>
+
+<div class="flow">
+  <div class="flow-step">① 選擇資料夾（要抓取的來源）</div>
+  <div class="flow-step">② 輸入要找的關鍵字(問題點)</div>
+  <div class="flow-step">③ 系統讀取所有 txt 檔</div>
+  <div class="flow-step">④ 抓出 SN + 問題資訊</div>
+  <div class="flow-step">⑤ 自動整理成 Excel</div>
+</div>
+</div>
+
+<div class="card">
+<h2>📸 操作 Demo</h2>
+
+<h3>Step 1：啟動工具</h3>
+<img src="image1.png" class="demo-img">
+
+<h3>Step 2：選擇資料夾</h3>
+<img src="image2.png" class="demo-img">
+
+<h3>Step 3：輸入關鍵字</h3>
+<img src="image3.png" class="demo-img">
+
+<h3>Step 4：查看結果</h3>
+<img src="image4.png" class="demo-img">
+
+<p>👉 不需要手動整理，系統會自動完成</p>
+</div>
+
+<div class="card">
+<h2>實際效果</h2>
+
+<p>原本：人工一筆一筆看</p>
+<p>現在：直接產出整理好的結果</p>
+
+</div>
+
+<div class="card">
+<h2>輸出範例</h2>
+
+<table border="1" cellpadding="5">
+<tr><th>SN</th><th>問題點</th><th>出現次數</th></tr>
+<tr><td>ABC123</td><td>DIMM1</td><td>3</td></tr>
+</table>
+
+</div>
+
+<div class="card">
+<h2>程式在做什麼（簡單說）</h2>
+
+<ul>
+<li>讀取每個檔案</li>
+<li>找關鍵資訊</li>
+<li>比對關鍵字</li>
+<li>統計出現次數</li>
+</ul>
+
+<button class="btn" onclick="toggleAll()">展開 / 收合 程式碼</button>
+
+<details class="code-block">
+<summary>查看主要程式</summary>
+
+<pre><code>
+Option Explicit
+
+'=== 檔案讀取 ===
+Private Function ReadAllLines(ByVal filePath As String) As Variant
+    Dim fso As Object, ts As Object, lines As Collection, line As String
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    If Not fso.FileExists(filePath) Then
+        ReadAllLines = Array()
+        Exit Function
+    End If
+    Set ts = fso.OpenTextFile(filePath, 1, False)
+    Set lines = New Collection
+    Do While Not ts.AtEndOfStream
+        line = ts.ReadLine
+        lines.Add line
+    Loop
+    ts.Close
+    Dim arr() As String, i As Long
+    ReDim arr(0 To lines.Count - 1)
+    For i = 1 To lines.Count
+        arr(i - 1) = lines(i)
+    Next
+    ReadAllLines = arr
+End Function
+
+'===字串處理 ===
+Private Function TrimBoth(ByVal s As String) As String
+    TrimBoth = Trim$(s)
+End Function
+
+Private Function TryExtractSN(ByVal line As String, ByRef outSN As String) As Boolean
+    Const key As String = "Board Serial Number:"
+    Dim p As Long
+    p = InStr(1, line, key, vbBinaryCompare)
+    If p <= 0 Then
+        TryExtractSN = False
+        Exit Function
+    End If
+    outSN = TrimBoth(Mid$(line, p + Len(key)))
+    TryExtractSN = (Len(outSN) > 0)
+End Function
+
+Private Function ContainsPattern(ByVal text As String, ByVal pattern As String) As Boolean
+    Dim t As String, p As String
+    t = UCase$(text)
+    p = UCase$(pattern)
+    ContainsPattern = (t Like "*" & p & "*")
+End Function
+
+' 逗號分隔字串轉陣列
+Private Function ParseCsvList(ByVal s As String, ByVal defaultText As String) As Variant
+    Dim raw As String
+    raw = Trim$(s)
+    If Len(raw) = 0 Then raw = defaultText
+    
+    Dim parts() As String
+    parts = Split(raw, ",")
+    
+    Dim i As Long, buf As Collection
+    Set buf = New Collection
+    For i = LBound(parts) To UBound(parts)
+        Dim token As String
+        token = Trim$(parts(i))
+        If Len(token) > 0 Then buf.Add token
+    Next
+    
+    If buf.Count = 0 Then buf.Add defaultText
+    
+    Dim arr() As String
+    ReDim arr(0 To buf.Count - 1)
+    For i = 1 To buf.Count
+        arr(i - 1) = buf(i)
+    Next
+    ParseCsvList = arr
+End Function
+
+'===資料夾選取===(使用路徑輸入)
+Private Function GetFolderPathsFromSheet(ByVal ws As Worksheet) As Collection
+    Dim paths As New Collection
+    Dim r As Long: r = 2
+    Do While Len(Trim$(CStr(ws.Cells(r, 1).Value))) > 0
+        paths.Add Trim$(CStr(ws.Cells(r, 1).Value))
+        r = r + 1
+    Loop
+    Set GetFolderPathsFromSheet = paths
+End Function
+'===資料夾選取===(使用視窗選取)
+Private Function PickMultipleFolders() As Collection
+    Dim result As New Collection
+    On Error GoTo PickerFallback
+    Dim fd As FileDialog
+    Set fd = Application.FileDialog(msoFileDialogFolderPicker)
+    With fd
+        .Title = "選取要掃描的資料夾"
+        .AllowMultiSelect = True
+        If .Show = -1 Then
+            Dim i As Long
+            For i = 1 To .SelectedItems.Count
+                result.Add .SelectedItems(i)
+            Next
+        End If
+    End With
+    Set PickMultipleFolders = result
+    Exit Function
+PickerFallback:
+    Dim fd2 As FileDialog
+    Set fd2 = Application.FileDialog(msoFileDialogFolderPicker)
+    With fd2
+        .Title = "選取要掃描的資料夾"
+        .AllowMultiSelect = False
+        If .Show = -1 Then
+            result.Add .SelectedItems(1)
+        End If
+    End With
+    Set PickMultipleFolders = result
+End Function
+
+'===  主程式 ===
+Public Sub ScanLogs_SummaryOnly()
+    Dim ws As Worksheet
+    Set ws = ActiveSheet
+    
+    ' --- (Step 1) 取得資料夾清單 ---
+    Dim folderPaths As Collection
+    Set folderPaths = GetFolderPathsFromSheet(ws)
+    If folderPaths.Count = 0 Then
+        Set folderPaths = PickMultipleFolders()
+        If folderPaths.Count = 0 Then
+            MsgBox "未提供任何資料夾路徑。請在 A2 開始貼上路徑，或在提示視窗中選擇資料夾。", vbExclamation
+            Exit Sub
+        End If
+    End If
+    
+    ' --- (Step 2) 取得使用者輸入的關鍵字 ---
+    Dim rawIssueTypes As String, rawIssuePoints As String
+    rawIssueTypes = InputBox( _
+        Prompt:="輸入要擷取的問題類型（以逗號分隔)" & vbCrLf & _
+                "例如：DIMM1,DIMM2 ", _
+        Title:="輸入問題類型", Default:="DIMM1,DIMM2")
+    rawIssuePoints = InputBox( _
+        Prompt:="輸入要擷取的問題點（以逗號分隔)" & vbCrLf & _
+                "例如：Device,Node", _
+        Title:="輸入問題點", Default:="Device,Node")
+    
+    If rawIssueTypes = "" Or rawIssuePoints = "" Then Exit Sub
+    
+    Dim issueTypes As Variant, issuePoints As Variant
+    issueTypes = ParseCsvList(rawIssueTypes, "DIMM1")
+    issuePoints = ParseCsvList(rawIssuePoints, "Device,Node")
+    
+    ' --- (Step 3) 清空輸出區  ---
+    ws.Range("A6:Z100000").Clear
+    ws.Range("F3:G10").ClearContents ' 清除舊的統計數據
+    
+    ' 設定表頭
+    ws.Range("A5:D5").Value = Array("SN", "問題點", "問題類型", "發生次數")
+    ws.Range("A5:D5").Font.Bold = True
+    
+    ' --- (Step 4) 開始掃描檔案 ---
+    Dim fso As Object: Set fso = CreateObject("Scripting.FileSystemObject")
+    Dim counts As Object: Set counts = CreateObject("Scripting.Dictionary")
+    counts.CompareMode = 1
+    
+    Dim totalFiles As Long: totalFiles = 0
+    Dim totalKeys As Long
+    
+    Application.ScreenUpdating = False
+    Application.Calculation = xlCalculationManual '自動運算格->手動運算格(增進運行速度)
+    
+    Dim folderPath As Variant
+    For Each folderPath In folderPaths
+        If fso.FolderExists(CStr(folderPath)) Then
+            Dim folder As Object, file As Object
+            Set folder = fso.GetFolder(CStr(folderPath))
+            For Each file In folder.Files
+            '讀入檔案(確認總檔數)
+                If LCase$(fso.GetExtensionName(file.Name)) = "txt" Then
+                    totalFiles = totalFiles + 1
+                    
+                    Dim lines As Variant
+                    lines = ReadAllLines(file.Path)
+                    If Not IsArray(lines) Then GoTo NextFile
+                    '擷取SN
+                    Dim sn As String: sn = ""
+                    Dim i As Long
+                    
+                    ' 逐行讀取
+                    For i = LBound(lines) To UBound(lines)
+                        Dim line As String
+                        line = lines(i)
+                        
+                        ' A. 抓取 SN (每個檔案只抓一次)
+                        If Len(sn) = 0 Then
+                            Dim snTmp As String
+                            If TryExtractSN(line, snTmp) Then sn = snTmp
+                        End If
+                        
+                        ' B. 檢查是否包含關鍵字
+                        Dim pointsFound As Collection: Set pointsFound = New Collection
+                        Dim typesFound As Collection: Set typesFound = New Collection
+                        
+                        Dim p As Long, t As Long
+                        For p = LBound(issuePoints) To UBound(issuePoints)
+                            If ContainsPattern(line, CStr(issuePoints(p))) Then
+                                pointsFound.Add CStr(issuePoints(p))
+                            End If
+                        Next
+                        For t = LBound(issueTypes) To UBound(issueTypes)
+                            If ContainsPattern(line, CStr(issueTypes(t))) Then
+                                typesFound.Add CStr(issueTypes(t))
+                            End If
+                        Next
+                        
+                        ' C. 若同時命中，加入 Dictionary 計數
+                        If pointsFound.Count > 0 And typesFound.Count > 0 Then
+                            Dim pp As Long, tt As Long, key As String
+                            For pp = 1 To pointsFound.Count
+                                For tt = 1 To typesFound.Count
+                                    ' Dictionary 預設依加入順序排列，因此同檔(同SN)的資料會自然排在一起
+                                    key = UCase$(sn) & "|" & UCase$(CStr(pointsFound(pp))) & "|" & UCase$(CStr(typesFound(tt)))
+                                    If counts.Exists(key) Then
+                                        counts(key) = counts(key) + 1
+                                    Else
+                                        counts.Add key, 1
+                                    End If
+                                Next tt
+                            Next pp
+                        End If
+                    Next i
+                End If
+NextFile:
+            Next file
+        End If
+    Next folderPath
+    
+    ' --- (Step 5) 寫回 Excel ---
+    Dim rowOut As Long: rowOut = 6
+    Dim k As Variant, parts() As String
+    
+    For Each k In counts.Keys
+        parts = Split(CStr(k), "|") ' 拆解 Key
+        ws.Cells(rowOut, 1).Value = parts(0) ' SN
+        ws.Cells(rowOut, 2).Value = parts(1) ' 問題點
+        ws.Cells(rowOut, 3).Value = parts(2) ' 問題類型
+        ws.Cells(rowOut, 4).Value = counts(k)
+        rowOut = rowOut + 1
+    Next k
+    
+    totalKeys = counts.Count
+    Dim lastRow As Long
+    lastRow = rowOut - 1
+    
+    ' --- (Step 6) 顏色標記與計算唯一 SN 總數 ---
+    Dim totalUniqueSN As Long: totalUniqueSN = 0
+    
+    If lastRow >= 6 Then
+        ' 定義顏色：淺藍 / 淺黃
+        Dim colorBlue As Long: colorBlue = RGB(221, 235, 247)
+        Dim colorYellow As Long: colorYellow = RGB(255, 255, 204)
+        
+        Dim useBlue As Boolean: useBlue = False ' 初始狀態
+        Dim curSN As String, prevSN As String
+        Dim rRow As Long
+        
+        prevSN = "" ' 用來記錄上一列的 SN
+        
+        For rRow = 6 To lastRow
+            curSN = Trim$(CStr(ws.Cells(rRow, 1).Value))
+            
+            ' 如果 SN 改變了 (或者遇到第一筆資料)
+            If curSN <> prevSN Then
+                totalUniqueSN = totalUniqueSN + 1 ' 發現新 SN，計數+1
+                useBlue = Not useBlue             ' 切換顏色開關
+                prevSN = curSN                    ' 更新上一列 SN
+            End If
+            
+            ' 填入顏色 (只填 SN 欄位)
+            If useBlue Then
+                ws.Cells(rRow, 1).Interior.Color = colorBlue
+            Else
+                ws.Cells(rRow, 1).Interior.Color = colorYellow
+            End If
+        Next rRow
+    End If
+    
+    ' --- (Step 7) 顯示統計結果 ---
+    Application.ScreenUpdating = True
+    Application.Calculation = xlCalculationAutomatic
+    
+    ws.Range("F3").Value = "總檔案數:"
+    ws.Range("G3").Value = totalFiles
+    
+    ws.Range("F5").Value = "總列數(資料列):"
+    ws.Range("G5").Value = totalKeys
+    
+    ws.Range("F4").Value = "SN 總數(不重複):"
+    ws.Range("G4").Value = totalUniqueSN
+    ws.Range("G4").Font.Bold = True
+    '更改SN格式(避免亂碼)
+    Columns("A:A").Select
+    Selection.NumberFormatLocal = "0.00_);[紅色](0.00)"
+    Selection.NumberFormatLocal = "0.0_);[紅色](0.0)"
+    Selection.NumberFormatLocal = "0_);[紅色](0)"
+    
+    MsgBox "處理完成！" & vbCrLf & _
+           "----------------" & vbCrLf & _
+           "掃描檔案數：" & totalFiles & vbCrLf & _
+           "SN 數：" & totalUniqueSN & vbCrLf & _
+           "問題總列數：" & totalKeys, vbInformation
+End Sub
+</code></pre>
+
+</details>
+
+</div>
+
+<div class="card">
+<h2>這個工具的價值</h2>
+
+<ul>
+<li>節省大量人工時間</li>
+<li>避免漏掉錯誤</li>
+<li>快速整理資料</li>
+</ul>
+
+</div>
+
+</div>
+
+<script>
+function toggleAll() {
+  const blocks = document.querySelectorAll(".code-block");
+  blocks.forEach(d => d.open = !d.open);
+}
+</script>
+
+</body>
+</html>
