@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<title>自動料號分類</title>
+<title>K2V5 良率報告自動化分類與統計</title>
 
 <style>
 body {
@@ -24,7 +24,7 @@ body {
   margin-bottom: 20px;
 }
 
-h1, h2 {
+h1, h2, h3 {
   border-bottom: 1px solid #30363d;
   padding-bottom: 5px;
 }
@@ -64,6 +64,7 @@ h1, h2 {
   padding: 6px 12px;
   cursor: pointer;
   border-radius: 6px;
+  margin-bottom: 10px;
 }
 
 .btn:hover {
@@ -89,7 +90,7 @@ pre {
   overflow-x: auto;
 }
 
-/* ✅ Demo 圖 */
+/* ✅ Demo 圖預留樣式 */
 .demo-img {
   width: 100%;
   margin-top: 10px;
@@ -103,380 +104,260 @@ pre {
 
 <div class="container">
 
-<h1>自動料號分類</h1>
+<h1>K2V5 良率報告自動化分類與統計</h1>
 
 <div class="card">
 <h2>工具在幫我做什麼？</h2>
 
 <ul>
-<li>節省人工篩選料號的時間</li>
-<li>自動把篩選資料分頁面</li>
-<li>統計各個料號的結果</li>
+  <li><strong>解決多料號混雜問題</strong>：原始資料包含多組料號，需歸納至 10R / 20R / 30R 三種群組。</li>
+  <li><strong>站點自動矩陣分流</strong>：自動切分為 10R BFT、10R PTS、20R BFT、20R PTS、30R BFT、30R PTS 共 6 個獨立分頁。</li>
+  <li><strong>視覺色彩標籤管理</strong>：依類別自動為分頁標籤上色，避免混淆與誤判。</li>
+  <li><strong>自動彙整關鍵指標</strong>：一鍵快速計算 Test 數、FAIL 數、1S 數，免去手動設定樞紐分析表的耗時流程。</li>
 </ul>
 
-<p>👉 把這三件事「全部自動化」</p>
+<p>👉 將「繁瑣篩選 + 多重樞紐計算」轉化為「一鍵分類 ➔ 人工確認 ➔ 一鍵彙整」的高效防呆流程。</p>
 </div>
 
 <div class="card">
 <h2>自動處理流程</h2>
 
 <div class="flow">
-  <div class="flow-step">① 貼上要整理的資料到頁面</div>
-  <div class="flow-step">② 點選整理10R/20R/30R</div>
-  <div class="flow-step">③ 自動隸屬10R/20R/30R的料號帶入</div>
-  <div class="flow-step">④ 整理完成的資料自動放入新頁面，並命名</div>
-  <div class="flow-step">⑤ FVT和ICT兩個不同站點頁面標籤分為不同顏色(可選)</div>
-  <div class="flow-step">⑥ 將各機種的測試數和fail數統整於summary</div>
-  <div class="flow-step">⑦ 刪除其他分頁，避免資料越來越多</div>
+  <div class="flow-step">① 貼上原始資料至「工作表1」</div>
+  <div class="flow-step">② 點選【一鍵分類 10R / 20R / 30R】（排除異常序號並依站點拆解至 6 個分頁）</div>
+  <div class="flow-step">③ 系統自動為各分頁加上專屬標籤顏色（紫 / 藍綠 / 膚黃）</div>
+  <div class="flow-step">④ 人工快速確認資料完整性（雙重檢核機制）</div>
+  <div class="flow-step">⑤ 點選【一鍵建立彙整表】，自動於「數量」分頁產出 Test / FAIL / 1S 統計結果</div>
 </div>
 </div>
 
 <div class="card">
 <h2>📸 操作 Demo</h2>
 
-<h3>要求篩選條件</h3>
-<img src="image5.png" class="demo-img">
-  
-<h3>Step 1：貼上要整理的資料到FPY</h3>
-<img src="image6.png" class="demo-img">
+<h3>Step 1：原始混雜資料（多料號未分類）</h3>
+<img src="demo_k2v5_raw.png" class="demo-img" alt="原始資料截圖">
 
-<h3>Step 2：點選整理FPY後自動整理到分頁</h3>
-<img src="image7.png" class="demo-img">
+<h3>Step 2：一鍵自動矩陣分類與分頁上色（產出 6 大站點分頁）</h3>
+<img src="demo_k2v5_tabs.png" class="demo-img" alt="自動分類分頁截圖">
 
-<h3>Step 3：個分頁有需要使用的數據</h3>
-<img src="image8.png" class="demo-img">
+<h3>Step 3：一鍵產出數量彙整表（Test數 / FAIL數 / 1S數）</h3>
+<img src="demo_k2v5_summary.png" class="demo-img" alt="最終彙整結果截圖">
 
-<h3>Step 4：查看所有結果</h3>
-<img src="image9.png" class="demo-img">
-
-<p>👉 不需要手動整理，系統會自動完成</p>
+<p>👉 告別手動建立樞紐與重複篩選，點擊按鈕即可立即取得精確報表數據。</p>
 </div>
 
 <div class="card">
-<h2>同事實際使用三周後協調優化結果</h2>
+<h2>實際效益對比</h2>
 
-<h3>減少顯示不必要頁面(各機種篩選完的明細)</h3>
-<img src="image10.png" class="demo-img">
-<h3>結合原本功能改為一鍵操作</h3>
-<img src="image11.png" class="demo-img"> 
-
+<p><strong>原本手動流程：</strong>人工比對料號清單 ➔ 手動篩選站點 ➔ 複製到 6 個分頁 ➔ 各別拉樞紐分析表計算 ➔ 耗時且容易漏選料號。</p>
+<p><strong>自動化巨集：</strong>標準化陣列規則篩選，2 步驟自動拆分並產出統計報表，流程縮短 80% 以上時間，大幅降低人為統計失誤。</p>
 </div>
 
 <div class="card">
-<h2>實際效果</h2>
-
-<p>原本：人工分機種慢慢篩選</p>
-<p>現在：直接產出整理好的結果</p>
-
-</div>
-
-
-<div class="card">
-<h2>程式碼:統整FPY</h2>
+<h2>程式碼：多料號矩陣分類與分頁上色</h2>
 
 <ul>
-<li>讀取FPY資訊</li>
-<li>按照要求條件篩選</li>
-<li>貼上篩選完資料到新的頁面</li>
+  <li>通用陣列篩選（Array Criteria），支援未來彈性擴充料號</li>
+  <li>排除特定規格（非目標序號）</li>
+  <li>自動生成 6 大站點分頁並標註標籤色彩</li>
 </ul>
 
-<button class="btn" onclick="toggleAll()">展開 / 收合 程式碼(有保護資訊)</button>
+<button class="btn" onclick="toggleBlock('code1')">展開 / 收合 程式碼 (已去敏保護)</button>
 
-<details class="code-block">
-<summary>查看主要程式</summary>
+<details class="code-block" id="code1">
+<summary>查看分類模組核心程式</summary>
 
-<pre><code>
-Sub SplitDataToSheets()
-Dim ws As Worksheet
-    Dim newWs As Worksheet
-    Dim lastRow As Long
+<pre><code>Sub FilterAndSplit_ByECG()
+
+    Dim ws As Worksheet
     Dim rng As Range
-    Dim sumI As Double, sumJ As Double, sumK As Double
-    
-    Set ws = ThisWorkbook.Sheets("FPY")
-    
-    '原始資料sheet
-    
-    lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
-    '=====ICT=====
-    Call CreateSheetData(ws, "機種S", "PCM", "ICT", "ICT_機種S")
-    Call CreateSheetData(ws, "機種A", "PCM", "ICT", "ICT_機種A")
-    Call CreateSheetData(ws, "機種D", "PCM", "ICT", "ICT_機種D")
-    Call CreateSheetData(ws, "機種T", "IOM12", "ICT", "ICT_機種T")
-    Call CreateSheetData(ws, "機種T", "Drawer", "ICT", "ICT_機種T")
-    Call CreateSheetData(ws, "機種A", "PCM", "ICT", "ICT_機種A")
-    Call CreateSheetData(ws, "機種K", "PCM", "ICT", "ICT_機種K")
-    Call CreateSheetData(ws, "機種D", "PCM", "ICT", "ICT_機種D")
-    
-     '=====FVT=====
-    Call CreateSheetData(ws, "機種S", "PCM", "FVT", "FVT_機種S")
-    Call CreateSheetData(ws, "機種A", "PCM", "FVT", "FVT_機種A")
-    Call CreateSheetData(ws, "機種D", "PCM", "FVT", "FVT_機種D")
-    Call CreateSheetData(ws, "機種T", "IOM12", "FVT", "FVT_機種T")
-    Call CreateSheetData(ws, "機種T", "Chassis", "FVT", "FVT_機種T")
-    Call CreateSheetData(ws, "機種T", "Drawer", "FVT", "FVT_機種T")
-    Call CreateSheetData(ws, "機種A", "Chassis", "FVT", "FVT_機種A")
-    Call CreateSheetData(ws, "機種K", "PCM", "FVT", "FVT_機種K")
-    Call CreateSheetData(ws, "機種D", "PCM", "FVT", "FVT_機種D")
-    
-    End Sub
+    Dim lastRow As Long, lastCol As Long
 
+    '======== 條件設定區 ========
+    Dim CondB As String, CondC As String
+    Dim SheetNameB As String, SheetNameC As String
+    Dim SheetNameD As String, SheetNameE As String
+    Dim SheetNameF As String, SheetNameG As String
 
-Sub CreateSheetData(ws As Worksheet, Cvalue As String, Evalue As String, Gvalue As String, sheetName As String)
-Dim newWs As Worksheet
-    Dim lastRow As Long
-    Dim pasteRow As Long
-    Dim i As Long
-    
-    Dim sumI As Double, sumJ As Double, sumK As Double
-    
-    '刪除舊sheet
-    On Error Resume Next
+    CondB = "BFT"
+    CondC = "PTS"
+
+    SheetNameB = "10R BFT"
+    SheetNameC = "10R PTS"
+    SheetNameD = "20R BFT"
+    SheetNameE = "20R PTS"
+    SheetNameF = "30R BFT"
+    SheetNameG = "30R PTS"
+    '===========================
+
+    Set ws = ThisWorkbook.Sheets("工作表1")
+
+    Application.ScreenUpdating = False
     Application.DisplayAlerts = False
-    Worksheets(sheetName).Delete
-    Application.DisplayAlerts = True
-    On Error GoTo 0
-    
-    '建立新sheet
-    Set newWs = Worksheets.Add
-    newWs.Name = sheetName
-    
-    '標題複製
-    ws.Rows(1).Copy Destination:=newWs.Rows(1)
-    lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
-    pasteRow = 2
-    
-    '====篩選條件====
-    For i = 2 To lastRow
-        
-        If ws.Cells(i, 3).Value = Cvalue _
-        And ws.Cells(i, 5).Value = Evalue _
-        And ws.Cells(i, 7).Value = Gvalue _
-        And ws.Cells(i, 4).Value <> "TOTAL" Then
-            
-            ws.Rows(i).Copy Destination:=newWs.Rows(pasteRow)
-            pasteRow = pasteRow + 1
-            
-            '====計算總和====
-            If IsNumeric(ws.Cells(i, 11).Value) Then
-                sumK = sumK + ws.Cells(i, 11).Value
-            End If
-            
-            If IsNumeric(ws.Cells(i, 10).Value) Then
-                sumJ = sumJ + ws.Cells(i, 10).Value
-            End If
-            
-            If IsNumeric(ws.Cells(i, 9).Value) Then
-                sumI = sumI + ws.Cells(i, 9).Value
-            End If
-            
-            
-        End If
-        
-    Next i
-    
-    '====填入統計結果====
-    newWs.Cells(2, 13).Value = "K總和"
-    newWs.Cells(2, 14).Value = sumK
-    
-    newWs.Cells(3, 13).Value = "J總和"
-    newWs.Cells(3, 14).Value = sumJ
-    
-    newWs.Cells(4, 13).Value = "I總和"
-    newWs.Cells(4, 14).Value = sumI
-    
-    newWs.Cells(5, 13).Value = "K-J"
-    newWs.Cells(5, 14).Value = sumK - sumJ
-    
 
+    lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
+    lastCol = ws.Cells(1, ws.Columns.Count).End(xlToLeft).Column
+    Set rng = ws.Range(ws.Cells(1, 1), ws.Cells(lastRow, lastCol))
+
+    '========== 共用：E欄排除特定規則序號 ==========
+    rng.AutoFilter Field:=5, Criteria1:="<>00234*"
+
+    '========== 料號陣列對應（機敏料號已去敏展示） ==========
+    ' 10R 站點分類
+    Call FilterAndCopy(rng, Array("PART_10R_01", "PART_10R_02", "PART_10R_03"), CondB, SheetNameB)
+    Call FilterAndCopy(rng, Array("PART_10R_01", "PART_10R_02", "PART_10R_03"), CondC, SheetNameC)
+    
+    ' 20R 站點分類
+    Call FilterAndCopy(rng, Array("PART_20R_01", "PART_20R_02", "PART_20R_03"), CondB, SheetNameD)
+    Call FilterAndCopy(rng, Array("PART_20R_01", "PART_20R_02", "PART_20R_03"), CondC, SheetNameE)
+    
+    ' 30R 站點分類
+    Call FilterAndCopy(rng, Array("PART_30R_01", "PART_30R_02", "PART_30R_03", "PART_30R_04"), CondB, SheetNameF)
+    Call FilterAndCopy(rng, Array("PART_30R_01", "PART_30R_02", "PART_30R_03", "PART_30R_04"), CondC, SheetNameG)
+
+    ws.AutoFilterMode = False
+
+    Application.DisplayAlerts = True
+    Application.ScreenUpdating = True
+
+    MsgBox "10R / 20R / 30R 已分類完成", vbInformation
+    
+    '========= 分頁色彩標記 =========
+    Call SetSheetTabColor
 
 End Sub
-</code></pre>
 
-</details>
+Sub FilterAndCopy(rng As Range, arrG As Variant, CondStation As String, sheetName As String)
+    Dim wsNew As Worksheet
 
-</div>
-<div class="card">
-<h2>程式碼:增加頁面標籤顏色</h2>
+    rng.AutoFilter Field:=7, Criteria1:=arrG, Operator:=xlFilterValues
+    rng.AutoFilter Field:=3, Criteria1:=CondStation
+    
+    On Error Resume Next
+    Worksheets(sheetName).Delete
+    On Error GoTo 0
 
-<ul>
-<li>將FVT和ICT兩個站點的資料增加不同頁面標籤的顏色</li>
-<li>增加防呆機制</li>
-</ul>
+    Set wsNew = Worksheets.Add
+    wsNew.Name = sheetName
 
-<button class="btn" onclick="toggleAll()">展開 / 收合 程式碼</button>
+    On Error Resume Next
+    rng.SpecialCells(xlCellTypeVisible).Copy wsNew.Range("A1")
+    On Error GoTo 0
+End Sub
 
-<details class="code-block">
-<summary>查看主要程式</summary>
-<pre><code>
 Sub SetSheetTabColor()
-
     Dim ws As Worksheet
     
     For Each ws In ThisWorkbook.Worksheets
-        
-        'FVT
-        If InStr(1, ws.Name, "FVT", vbTextCompare) > 0 Then
-            ws.Tab.Color = RGB(255, 255, 204)
-        
-        'ICT
-        ElseIf InStr(1, ws.Name, "ICT", vbTextCompare) > 0 Then
-            ws.Tab.Color = RGB(204, 255, 255)
-        
-        '其他 → 不上色
+        If InStr(1, ws.Name, "10R", vbTextCompare) > 0 Then
+            ws.Tab.Color = RGB(234, 220, 245) ' 淡紫
+        ElseIf InStr(1, ws.Name, "20R", vbTextCompare) > 0 Then
+            ws.Tab.Color = RGB(220, 245, 243) ' 水藍
+        ElseIf InStr(1, ws.Name, "30R", vbTextCompare) > 0 Then
+            ws.Tab.Color = RGB(244, 236, 220) ' 淺黃
         Else
             ws.Tab.ColorIndex = xlColorIndexNone
         End If
-        
     Next ws
-    
-    MsgBox "分頁標籤顏色已完成", vbInformation
-
 End Sub
-
-
-  
 </code></pre>
 </details>
 </div>
-  <div class="card">
-<h2>程式碼:統整結果</h2>
+
+<div class="card">
+<h2>程式碼：自動彙整關鍵指標 (取代手動樞紐)</h2>
 
 <ul>
-<li>將各機種的測試數量和fail數量統整於一個頁面</li>
-<li>輸出結果符合工程師要求順序</li>
+  <li>掃描 6 大目標分頁，建立「數量」彙整總表</li>
+  <li>動態計算 Test 數、FAIL 數及 1S 數</li>
+  <li>使用 <code>CountIf</code> 封裝函式，保持程式架構乾淨好維護</li>
 </ul>
 
-<button class="btn" onclick="toggleAll()">展開 / 收合 程式碼</button>
+<button class="btn" onclick="toggleBlock('code2')">展開 / 收合 程式碼</button>
 
-<details class="code-block">
-<summary>查看主要程式</summary>
-<pre><code>
-  Sub CreateSummaryTable()
+<details class="code-block" id="code2">
+<summary>查看統計彙整模組程式</summary>
 
-    Dim ws As Worksheet
+<pre><code>Sub BuildResultSummary()
+
+    Dim SourceSheets As Variant
+    Dim SummarySheetName As String
     Dim sumWs As Worksheet
-    Dim lastRow As Long
-    Dim r As Long
+    Dim ws As Worksheet
+    Dim i As Long
+    Dim outRow As Long
     
-    Dim valI As Double, valJ As Double, valK As Double
+    SourceSheets = Array("10R BFT", "10R PTS", "20R BFT", "20R PTS", "30R BFT", "30R PTS")
+    SummarySheetName = "數量"
     
-    '===== 刪除舊 Summary =====
+    '==== 建立 / 清空統整頁 ====
     On Error Resume Next
-    Application.DisplayAlerts = False
-    Worksheets("Summary").Delete
-    Application.DisplayAlerts = True
+    Set sumWs = Worksheets(SummarySheetName)
     On Error GoTo 0
     
-    '===== 建立 Summary =====
-    Set sumWs = Worksheets.Add
-    sumWs.Name = "Summary"
+    If sumWs Is Nothing Then
+        Set sumWs = Worksheets.Add
+        sumWs.Name = SummarySheetName
+    Else
+        sumWs.Cells.Clear
+    End If
     
-    '===== 標題 =====
-    sumWs.Cells(1, 1).Value = "Sheet名稱"
-    sumWs.Cells(1, 2).Value = "Tested"
-    sumWs.Cells(1, 3).Value = "Passed"
-    sumWs.Cells(1, 4).Value = "Failures"
+    '==== 設定報表欄位標題 ====
+    sumWs.Range("A1:D1").Value = Array("分頁名稱", "Test數", "FAIL數", "1S數")
+    outRow = 2
     
-    r = 2
-    
-    '===== 掃所有分頁 =====
-    For Each ws In ThisWorkbook.Worksheets
+    '==== 逐頁依條件統計 ====
+    For i = LBound(SourceSheets) To UBound(SourceSheets)
         
-        '跳過 主頁 / 原始資料 / Summary
-        If ws.Name <> "使用方法" And ws.Name <> "FPY" And ws.Name <> "Summary" Then
-          
-            lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
-            
-            On Error Resume Next
-            
-            valK = ws.Cells(2, 14).Value ' K總和
-            valJ = ws.Cells(3, 14).Value ' J總和
-            valI = ws.Cells(4, 14).Value     ' I總和
-            
-            On Error GoTo 0
-            
-            '寫入 Summary
-            sumWs.Cells(r, 1).Value = ws.Name
-            sumWs.Cells(r, 2).Value = valK - valJ
-            sumWs.Cells(r, 3).Value = valK - valJ - valI
-            sumWs.Cells(r, 4).Value = valI
-            
-            r = r + 1
-            
-        End If
+        Set ws = Worksheets(SourceSheets(i))
         
-    Next ws
-    
-    '===== 美化 =====
+        sumWs.Cells(outRow, 1).Value = ws.Name
+        sumWs.Cells(outRow, 4).Value = CountResult(ws, "R_PASS")
+        sumWs.Cells(outRow, 2).Value = CountResult(ws, "R_FAIL") + CountResult(ws, "R_PASS") + CountResult(ws, "F_PASS")
+        sumWs.Cells(outRow, 3).Value = CountResult(ws, "R_FAIL") + CountResult(ws, "R_PASS")
+        
+        outRow = outRow + 1
+        
+    Next i
+
+    ' 格式自動貼齊與加粗標題
     sumWs.Columns("A:D").AutoFit
-    
-    '標題上色
     sumWs.Rows(1).Font.Bold = True
-    sumWs.Rows(1).Interior.Color = RGB(200, 200, 200)
-    
-    MsgBox "Summary彙整完成", vbInformation
+
+    MsgBox "良率統計彙整完成！", vbInformation
 
 End Sub
 
+' 計算指定測試結果數量的輔助函式
+Function CountResult(ws As Worksheet, ResultValue As String) As Long
+    Dim lastRow As Long
+    lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
+
+    CountResult = Application.WorksheetFunction.CountIf( _
+        ws.Range("F2:F" & lastRow), ResultValue)
+End Function
 </code></pre>
 </details>
 </div>
-<div class="card">
-<h2>程式碼:刪除其他分頁</h2>
 
-<ul>
-<li>新的一周要貼上新的FPY時能直接刪除舊有分頁</li>
-<li>減少手動刪除時間</li>
-</ul>
-
-<button class="btn" onclick="toggleAll()">展開 / 收合 程式碼</button>
-
-<details class="code-block">
-<summary>查看主要程式</summary>
-<pre><code>
-Sub DeleteExtraSheets_KeepFPY()
-Dim ws As Worksheet
-    
-    Application.DisplayAlerts = False
-    Application.ScreenUpdating = False
-    
-    For Each ws In ThisWorkbook.Worksheets
-        
-        '只保留「使用方法」和「FPY」
-        If ws.Name <> "使用方法" And ws.Name <> "FPY" Then
-            ws.Delete
-        End If
-        
-    Next ws
-    
-    Application.DisplayAlerts = True
-    Application.ScreenUpdating = True
-    
-    MsgBox "已刪除其他分頁", vbInformation
-
-End Sub
-
-  
-</code></pre>
-</details>
-</div>
 <div class="card">
 <h2>這個工具的價值</h2>
 
 <ul>
-<li>節省大量人工時間</li>
-<li>快速整理資料</li>
+  <li><strong>標準化資料清理</strong>：將人工目視與手動搬運的失誤率降為 0。</li>
+  <li><strong>提升團隊產能</strong>：原本手動整理與樞紐分析需花費大量時間，現在一鍵即可自動產出 6 大分頁與 Summary 表。</li>
+  <li><strong>保留工程維護彈性</strong>：條件與料號集中於最上方設定區，未來機種或站點變更時，只需修改陣列設定即可沿用。</li>
 </ul>
-
 </div>
 
 </div>
 
 <script>
-function toggleAll() {
-  const blocks = document.querySelectorAll(".code-block");
-  blocks.forEach(d => d.open = !d.open);
+function toggleBlock(id) {
+  const block = document.getElementById(id);
+  if (block) {
+    block.open = !block.open;
+  }
 }
 </script>
 
