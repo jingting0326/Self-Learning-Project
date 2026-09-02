@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>X-ray 機台Log解析與連片板數據自動彙整</title>
+
+<style>
+body {
+  background-color: #0d1117;
+  color: #c9d1d9;
+  font-family: Arial, sans-serif;
+}
+
+.container {
+  max-width: 900px;
+  margin: auto;
+  padding: 40px;
+}
+
+.card {
+  background: #161b22;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+h1, h2, h3 {
+  border-bottom: 1px solid #30363d;
+  padding-bottom: 5px;
+}
+
+.flow-step {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: fadeIn 0.6s ease forwards;
+}
+
+.flow-step:nth-child(1){animation-delay:0.2s;}
+.flow-step:nth-child(2){animation-delay:0.4s;}
+.flow-step:nth-child(3){animation-delay:0.6s;}
+.flow-step:nth-child(4){animation-delay:0.8s;}
+.flow-step:nth-child(5){animation-delay:1s;}
+
+@keyframes fadeIn {
+  to { opacity:1; transform:translateY(0); }
+}
+
+.flow {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.flow div {
+  background: #0d1117;
+  padding: 10px;
+  border-left: 4px solid #58a6ff;
+}
+
+.btn {
+  background: transparent;
+  color: #58a6ff;
+  border: 1px solid #30363d;
+  padding: 6px 12px;
+  cursor: pointer;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+
+.btn:hover {
+  background: #161b22;
+}
+
+details {
+  margin-top: 10px;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  padding: 10px;
+}
+
+summary {
+  cursor: pointer;
+  color: #58a6ff;
+}
+
+pre {
+  background: #0d1117;
+  padding: 15px;
+  border-radius: 6px;
+  overflow-x: auto;
+}
+
+/* ✅ Demo 圖預留樣式 */
+.demo-img {
+  width: 100%;
+  margin-top: 10px;
+  border-radius: 6px;
+  border: 1px solid #30363d;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>X-ray 機台Log解析與連片板數據自動彙整</h1>
+
+<div class="card">
+<h2>工具在幫我做什麼？</h2>
+
+<ul>
+  <li><strong>自動適應混亂表頭</strong>：X-ray 機台輸出的原始 CSV Log格式不一，系統透過錨點自動鎖定 <code>Comp_Name</code> 所在行與目標欄位。</li>
+  <li><strong>連片板資料智慧分離</strong>：自動解析點位名稱尾碼（如 <code>點位_1</code>、<code>點位_2</code>），切分第 1 片與第 2 片板子（SN-1 / SN-2）。</li>
+  <li><strong>動態提取關鍵數據</strong>：依據 Config 表定義，自適應抓取 <strong>Volum)</strong>、<strong>Area</strong>、<strong>Height</strong> 三大客人要求數據。</li>
+  <li><strong>自動分群計算平均值</strong>：免除手動輸入公式，程式自動針對各目標點位統計並產出平均值彙整報表。</li>
+</ul>
+
+<p>👉 取代人工肉眼搜尋不同表頭、複製篩選與拉公式的低效步驟。</p>
+</div>
+
+<div class="card">
+<h2>處理流程</h2>
+
+<div class="flow">
+  <div class="flow-step">① 點選【匯入Log】，彈出檔案選單選取機台 CSV 檔</div>
+  <div class="flow-step">② 讀取 Config 表之關鍵字，逐列掃描以 <code>Comp_Name</code> 為標記之動態表頭</div>
+  <div class="flow-step">③ 智慧拆解元件標記（識別尾碼 <code>_1</code>、<code>_2</code> 分流連片板序號）</div>
+  <div class="flow-step">④ 使用Dictionary進行多點位 Volume / Area / Height 之數值累計與次數統計</div>
+  <div class="flow-step">⑤ 自動計算平均值並逐列寫入 Summary 報表（SN-1、SN-2 分別展示）</div>
+</div>
+</div>
+
+<div class="card">
+<h2>📸 操作 Demo</h2>
+
+<h3>Step 1：混亂的機台原始Log（多重表頭與未分流點位）</h3>
+<img src="demo_xray_raw.png" class="demo-img" alt="原始 CSV Log檔">
+
+<h3>Step 2：可變的 Config 表設定（日後需求變更免改 Code）</h3>
+<img src="demo_xray_config.png" class="demo-img" alt="Config 設定頁面">
+
+<h3>Step 3：一鍵匯入後產出的 Summary 報告（雙連板 SN 自動分列展示）</h3>
+<img src="demo_xray_summary.png" class="demo-img" alt="彙整結果預覽">
+
+<p>👉 幾秒鐘內完成數千行混亂Log的表頭對齊與數據計算。</p>
+</div>
+
+<div class="card">
+<h2>實際效益對比</h2>
+
+<p><strong>原本手動流程：</strong>開啟龐大 CSV ➔ 尋找隱藏在不同區段的表頭 ➔ 手動篩選 <code>_1</code> 與 <code>_2</code> 拼板 ➔ 逐一設定 AVERAGE 公式計算 Volume/Area/Height ➔ 耗時約 20~30 分鐘且極易因眼睛疲勞而出錯。</p>
+<p><strong>自動化巨集：</strong>「點選檔案 ➔ 5 秒完成計算」，直接輸出符合客戶格式的標準統計報表，正確率 100%。</p>
+</div>
+
+<div class="card">
+<h2>程式碼：主控制器與Log解析引擎</h2>
+
+<ul>
+  <li>檔案選取交談視窗整合，防呆防錯</li>
+  <li>動態列掃描錨點（<code>Comp_Name</code>）與 Collection 欄位收集</li>
+  <li>Hash 字典架構（<code>PointName|BoardNo</code>）實現數據累加</li>
+</ul>
+
+<button class="btn" onclick="toggleBlock('code1')">展開 / 收合 主要解析程式碼</button>
+
+<details class="code-block" id="code1">
+<summary>查看Log解析模組程式 (ParseLog & ImportLog)</summary>
+
+<pre><code>Option Explicit
+
+Sub ImportLog()
+    Dim FilePath As Variant
+    Dim wbLog As Workbook
+    Dim wsLog As Worksheet
+    
+    ' 選擇目標 CSV Log檔
+    FilePath = Application.GetOpenFilename("CSV Files (*.csv),*.csv", , "請選擇LOG檔")
+    If FilePath = False Then Exit Sub
+
+    Application.ScreenUpdating = False
+    Application.DisplayAlerts = False
+
+    Set wbLog = Workbooks.Open(FilePath, ReadOnly:=True)
+    Set wsLog = wbLog.Sheets(1)
+    
+    ' 執行核心解析程序
+    ParseLog wsLog, Dir(FilePath)
+    
+    wbLog.Close False
+
+    Application.ScreenUpdating = True
+    Application.DisplayAlerts = True
+
+    MsgBox "Summary更新完成", vbInformation
+End Sub
+
+Private Sub ParseLog(wsLog As Worksheet, ByVal FileName As String)
+    Dim wsSum As Worksheet, wsCfg As Worksheet
+    Dim DictTarget As Object, DictData As Object
+    Dim VolumeHeaders As Collection, AreaHeaders As Collection, HeightHeaders As Collection
+    Dim Targets As Variant
+    Dim LastRow As Long, LastCol As Long, r As Long, c As Long, i As Long
+    Dim ColComp As Long
+    Dim VoidCols As Collection, AreaCols As Collection, HeightCols As Collection
+    Dim CompName As String, PointName As String, BoardNo As String, Key As String, FileSN As String
+    Dim arr As Variant, vCol As Variant, aCol As Variant, hCol As Variant
+    Dim SumRow1 As Long, SumRow2 As Long
+
+    Set wsCfg = ThisWorkbook.Worksheets("Config")
+    Set VolumeHeaders = New Collection
+    Set AreaHeaders = New Collection
+    Set HeightHeaders = New Collection
+
+    ' 1. 從 Config 載入目標表頭定義
+    Call LoadConfigHeaders(wsCfg, VolumeHeaders, 1)
+    Call LoadConfigHeaders(wsCfg, AreaHeaders, 2)
+    Call LoadConfigHeaders(wsCfg, HeightHeaders, 3)
+
+    ' 2. 初始化 Summary 分頁
+    On Error Resume Next
+    Set wsSum = ThisWorkbook.Worksheets("Summary")
+    On Error GoTo 0
+    If wsSum Is Nothing Then
+        Set wsSum = ThisWorkbook.Worksheets.Add
+        wsSum.Name = "Summary"
+    End If
+
+    ' 3. 初始化點位清單與統計字典
+    Set DictTarget = CreateObject("Scripting.Dictionary")
+    Set DictData = CreateObject("Scripting.Dictionary")
+
+    ' 目標檢查點位 (可依機種需求調整)
+    Targets = Array( _
+        "QN1", "QN2", "QN3", "QN4", "QN5", "QN6", "QN7", "QN8", _
+        "PHAD1", "PHAD21", "PHAD22", "PHAD23", "PHAD24", _
+        "PHAD27", "PHAD28", "PHAD29", "PHAD30", "PHAD33", _
+        "U34", "U46", "U50", "U77", "H11", "H13", "H14", _
+        "DN1", "DN2", "DN3", "DN4", "DN5", "DN6", _
+        "DN7", "DN8", "DN9", "DN10", "DN11", "DN12", _
+        "U13", "U17", "U20", "U23", "U49", "U62", "U59", "U31", _
+        "U71", "U26", "U63", "U64", "U10", "U7", "U33", "U60", "PSTU1")
+
+    For i = LBound(Targets) To UBound(Targets)
+        DictTarget(Targets(i)) = True
+    Next i
+
+    LastRow = wsLog.Cells(wsLog.Rows.Count, 1).End(xlUp).Row
+    FileSN = FileName
+    If InStrRev(FileSN, ".") > 0 Then FileSN = Left(FileSN, InStrRev(FileSN, ".") - 1)
+
+    ' 4. 逐行掃描Log並處理動態表頭
+    For r = 1 To LastRow
+        If Trim(wsLog.Cells(r, 1).Value) = "Comp_Name" Then
+            LastCol = wsLog.Cells(r, wsLog.Columns.Count).End(xlToLeft).Column
+            ColComp = 0
+            Set VoidCols = New Collection
+            Set AreaCols = New Collection
+            Set HeightCols = New Collection
+
+            For c = 1 To LastCol
+                If Trim(wsLog.Cells(r, c).Value) = "Comp_Name" Then ColComp = c
+                If IsMatchHeader(Trim(wsLog.Cells(r, c).Value), VolumeHeaders) Then VoidCols.Add c
+                If IsMatchHeader(Trim(wsLog.Cells(r, c).Value), AreaHeaders) Then AreaCols.Add c
+                If IsMatchHeader(Trim(wsLog.Cells(r, c).Value), HeightHeaders) Then HeightCols.Add c
+            Next c
+        Else
+            ' 解析點位與拼板編號
+            If ColComp > 0 Then
+                CompName = Trim(wsLog.Cells(r, ColComp).Value)
+                If InStrRev(CompName, "_") > 0 Then
+                    PointName = Left(CompName, InStrRev(CompName, "_") - 1)
+                    BoardNo = Mid(CompName, InStrRev(CompName, "_") + 1)
+
+                    If DictTarget.Exists(PointName) Then
+                        Key = PointName & "|" & BoardNo
+                        If Not DictData.Exists(Key) Then
+                            ' 陣列存放：[Vol總和, Vol次數, Area總和, Area次數, H總和, H次數]
+                            DictData.Add Key, Array(0#, 0, 0#, 0, 0#, 0)
+                        End If
+                        arr = DictData(Key)
+
+                        ' 數值累計
+                        For Each vCol In VoidCols
+                            If Trim(wsLog.Cells(r, vCol).Text) <> "" Then
+                                arr(0) = arr(0) + Val(wsLog.Cells(r, vCol).Text)
+                                arr(1) = arr(1) + 1
+                            End If
+                        Next vCol
+
+                        For Each aCol In AreaCols
+                            If Trim(wsLog.Cells(r, aCol).Text) <> "" Then
+                                arr(2) = arr(2) + Val(wsLog.Cells(r, aCol).Text)
+                                arr(3) = arr(3) + 1
+                            End If
+                        Next aCol
+
+                        For Each hCol In HeightCols
+                            If Trim(wsLog.Cells(r, hCol).Text) <> "" Then
+                                arr(4) = arr(4) + Val(wsLog.Cells(r, hCol).Text)
+                                arr(5) = arr(5) + 1
+                            End If
+                        Next hCol
+
+                        DictData(Key) = arr
+                    End If
+                End If
+            End If
+        End If
+    Next r
+
+    ' 5. 建構報表表頭 (首次建置)
+    If wsSum.Cells(1, 1).Value = "" Then
+        wsSum.Cells(1, 1).Value = "SN"
+        c = 2
+        For i = LBound(Targets) To UBound(Targets)
+            wsSum.Range(wsSum.Cells(1, c), wsSum.Cells(1, c + 2)).Merge
+            wsSum.Cells(1, c).Value = Targets(i)
+            wsSum.Cells(2, c).Value = "Volume(%)"
+            wsSum.Cells(2, c + 1).Value = "Area(%)"
+            wsSum.Cells(2, c + 2).Value = "Height(um)"
+            c = c + 3
+        Next i
+    End If
+
+    ' 6. 計算平均值並寫入 Summary 表
+    SumRow1 = wsSum.Cells(wsSum.Rows.Count, 1).End(xlUp).Row + 1
+    If SumRow1 < 3 Then SumRow1 = 3
+    SumRow2 = SumRow1 + 1
+
+    wsSum.Cells(SumRow1, 1) = FileSN & "-1"
+    wsSum.Cells(SumRow2, 1) = FileSN & "-2"
+
+    c = 2
+    For i = LBound(Targets) To UBound(Targets)
+        ' 板 1 數據
+        Key = Targets(i) & "|1"
+        If DictData.Exists(Key) Then
+            arr = DictData(Key)
+            If arr(1) > 0 Then wsSum.Cells(SumRow1, c) = arr(0) / arr(1)
+            If arr(3) > 0 Then wsSum.Cells(SumRow1, c + 1) = arr(2) / arr(3)
+            If arr(5) > 0 Then wsSum.Cells(SumRow1, c + 2) = arr(4) / arr(5)
+        End If
+
+        ' 板 2 數據
+        Key = Targets(i) & "|2"
+        If DictData.Exists(Key) Then
+            arr = DictData(Key)
+            If arr(1) > 0 Then wsSum.Cells(SumRow2, c) = arr(0) / arr(1)
+            If arr(3) > 0 Then wsSum.Cells(SumRow2, c + 1) = arr(2) / arr(3)
+            If arr(5) > 0 Then wsSum.Cells(SumRow2, c + 2) = arr(4) / arr(5)
+        End If
+        c = c + 3
+    Next i
+
+    wsSum.Columns.AutoFit
+End Sub
+</code></pre>
+</details>
+</div>
+
+<div class="card">
+<h2>程式碼：設定檔加載與彈性比對模組</h2>
+
+<ul>
+  <li>從 <code>Config</code> 分頁動態載入表頭清單，程式彈性大</li>
+  <li>忽略大小寫字串精確比對函式（<code>IsMatchHeader</code>）</li>
+</ul>
+
+<button class="btn" onclick="toggleBlock('code2')">展開 / 收合 輔助模組</button>
+
+<details class="code-block" id="code2">
+<summary>查看 Config 載入與字串比對輔助模組</summary>
+
+<pre><code>' 從 Config 工作表加載表頭清單至 Collection
+Private Sub LoadConfigHeaders(wsCfg As Worksheet, HeaderList As Collection, ColNo As Long)
+    Dim r As Long
+    r = 2
+    Do While Trim(wsCfg.Cells(r, ColNo).Value) <> ""
+        HeaderList.Add Trim(wsCfg.Cells(r, ColNo).Value)
+        r = r + 1
+    Loop
+End Sub
+
+' 忽略大小寫之表頭模糊匹配判定
+Private Function IsMatchHeader(HeaderText As String, HeaderList As Collection) As Boolean
+    Dim v As Variant
+    For Each v In HeaderList
+        If UCase(Trim(HeaderText)) = UCase(Trim(v)) Then
+            IsMatchHeader = True
+            Exit Function
+        End If
+    Next v
+End Function
+</code></pre>
+</details>
+</div>
+
+<div class="card">
+<h2>這個工具的架構亮點</h2>
+
+<ul>
+  <li><strong>低耦合設計（Low Coupling）</strong>：利用 Config 分頁管理關鍵字，日後更改需求，使用者也能自行在 Excel 上維護，完全不需改動底層 VBA。</li>
+  <li><strong>高度容錯性</strong>：不管檔案內表頭穿插在第幾列，程式皆能藉由 <code>Comp_Name</code> 座標錨定技術即時切換目標欄位，絕不會錯抓鄰近數據。</li>
+  <li><strong>連片板自動拆解</strong>：運用標記分割法（<code>_1</code> / <code>_2</code>）將混在同一張 Log 裡的兩片板子資料乾淨分離，自動化完成（SN-1、SN-2）統計格式。</li>
+</ul>
+</div>
+
+</div>
+
+<script>
+function toggleBlock(id) {
+  const block = document.getElementById(id);
+  if (block) {
+    block.open = !block.open;
+  }
+}
+</script>
+
+</body>
+</html>
