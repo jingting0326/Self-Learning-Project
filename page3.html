@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<title>K2V5 良率報告自動化分類與統計</title>
+<title>良率報告自動化分類與統計</title>
 
 <style>
 body {
@@ -90,7 +90,7 @@ pre {
   overflow-x: auto;
 }
 
-/* ✅ Demo 圖預留樣式 */
+
 .demo-img {
   width: 100%;
   margin-top: 10px;
@@ -104,7 +104,7 @@ pre {
 
 <div class="container">
 
-<h1>K2V5 良率報告自動化分類與統計</h1>
+<h1>料號自動化分類與統計</h1>
 
 <div class="card">
 <h2>工具在幫我做什麼？</h2>
@@ -123,11 +123,11 @@ pre {
 <h2>自動處理流程</h2>
 
 <div class="flow">
-  <div class="flow-step">① 貼上原始資料至「工作表1」</div>
-  <div class="flow-step">② 點選【一鍵分類 10R / 20R / 30R】（排除異常序號並依站點拆解至 6 個分頁）</div>
-  <div class="flow-step">③ 系統自動為各分頁加上專屬標籤顏色（紫 / 藍綠 / 膚黃）</div>
-  <div class="flow-step">④ 人工快速確認資料完整性（雙重檢核機制）</div>
-  <div class="flow-step">⑤ 點選【一鍵建立彙整表】，自動於「數量」分頁產出 Test / FAIL / 1S 統計結果</div>
+  <div class="flow-step">貼上原始資料至「工作表1」</div>
+  <div class="flow-step">點選【一鍵分類 10R / 20R / 30R】（排除不需要的工單並依站點拆解至 6 個分頁）</div>
+  <div class="flow-step">系統自動為各分類加上專屬標籤顏色（紫 / 藍綠 / 膚黃）</div>
+  <div class="flow-step">人工快速確認資料正確性</div>
+  <div class="flow-step">點選【一鍵建立彙整表】，自動於「數量」分頁產出 Test / FAIL / 1S 統計結果</div>
 </div>
 </div>
 
@@ -137,20 +137,20 @@ pre {
 <h3>Step 1：原始混雜資料（多料號未分類）</h3>
 <img src="demo_k2v5_raw.png" class="demo-img" alt="原始資料截圖">
 
-<h3>Step 2：一鍵自動矩陣分類與分頁上色（產出 6 大站點分頁）</h3>
+<h3>Step 2：一鍵自動矩陣分類與分頁上色（產出 6 分頁）</h3>
 <img src="demo_k2v5_tabs.png" class="demo-img" alt="自動分類分頁截圖">
 
-<h3>Step 3：一鍵產出數量彙整表（Test數 / FAIL數 / 1S數）</h3>
+<h3>Step 3：一鍵產出數量彙整表（Test數 / FAIL數 / 1S數）各分頁中保留原始資料，方便做報告使用</h3>
 <img src="demo_k2v5_summary.png" class="demo-img" alt="最終彙整結果截圖">
 
-<p>👉 告別手動建立樞紐與重複篩選，點擊按鈕即可立即取得精確報表數據。</p>
+
 </div>
 
 <div class="card">
 <h2>實際效益對比</h2>
 
 <p><strong>原本手動流程：</strong>人工比對料號清單 ➔ 手動篩選站點 ➔ 複製到 6 個分頁 ➔ 各別拉樞紐分析表計算 ➔ 耗時且容易漏選料號。</p>
-<p><strong>自動化巨集：</strong>標準化陣列規則篩選，2 步驟自動拆分並產出統計報表，流程縮短 80% 以上時間，大幅降低人為統計失誤。</p>
+<p><strong>自動化巨集：</strong>標準化陣列規則篩選，2 步驟自動拆分並產出統計報表，流程縮短時間，降低人為失誤。</p>
 </div>
 
 <div class="card">
@@ -158,8 +158,8 @@ pre {
 
 <ul>
   <li>通用陣列篩選（Array Criteria），支援未來彈性擴充料號</li>
-  <li>排除特定規格（非目標序號）</li>
-  <li>自動生成 6 大站點分頁並標註標籤色彩</li>
+  <li>排除特定工單（非目標序號）</li>
+  <li>自動生成 6 分頁並標註標籤色彩</li>
 </ul>
 
 <button class="btn" onclick="toggleBlock('code1')">展開 / 收合 程式碼 (已去敏保護)</button>
@@ -199,7 +199,7 @@ pre {
     lastCol = ws.Cells(1, ws.Columns.Count).End(xlToLeft).Column
     Set rng = ws.Range(ws.Cells(1, 1), ws.Cells(lastRow, lastCol))
 
-    '========== 共用：E欄排除特定規則序號 ==========
+    '========== 共用：E欄排除特定規則工單 ==========
     rng.AutoFilter Field:=5, Criteria1:="<>00234*"
 
     '========== 料號陣列對應（機敏料號已去敏展示） ==========
@@ -265,10 +265,10 @@ End Sub
 </div>
 
 <div class="card">
-<h2>程式碼：自動彙整關鍵指標 (取代手動樞紐)</h2>
+<h2>程式碼：自動彙整數量 (取代手動樞紐)</h2>
 
 <ul>
-  <li>掃描 6 大目標分頁，建立「數量」彙整總表</li>
+  <li>掃描 6 分頁，建立「數量」彙整總表</li>
   <li>動態計算 Test 數、FAIL 數及 1S 數</li>
   <li>使用 <code>CountIf</code> 封裝函式，保持程式架構乾淨好維護</li>
 </ul>
@@ -344,8 +344,8 @@ End Function
 <h2>這個工具的價值</h2>
 
 <ul>
-  <li><strong>標準化資料清理</strong>：將人工目視與手動搬運的失誤率降為 0。</li>
-  <li><strong>提升團隊產能</strong>：原本手動整理與樞紐分析需花費大量時間，現在一鍵即可自動產出 6 大分頁與 Summary 表。</li>
+  <li><strong>標準化資料清理</strong>：將手動搬運的失誤率降為 0。</li>
+  <li><strong>提升產能</strong>：原本手動整理與樞紐分析需花費大量時間，現在一鍵即可自動產出 6 大分頁與 Summary 表。</li>
   <li><strong>保留工程維護彈性</strong>：條件與料號集中於最上方設定區，未來機種或站點變更時，只需修改陣列設定即可沿用。</li>
 </ul>
 </div>
