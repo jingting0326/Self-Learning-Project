@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>BOM 檢驗紀錄自動搜尋工具</title>
+
+<style>
+
+body{
+    background-color:#0d1117;
+    color:#c9d1d9;
+    font-family:Arial, sans-serif;
+}
+
+.container{
+    max-width:1000px;
+    margin:auto;
+    padding:40px;
+}
+
+.card{
+    background:#161b22;
+    padding:20px;
+    border-radius:10px;
+    margin-bottom:20px;
+}
+
+h1,h2{
+    border-bottom:1px solid #30363d;
+    padding-bottom:5px;
+}
+
+.flow-step{
+    opacity:0;
+    transform:translateY(10px);
+    animation:fadeIn 0.6s ease forwards;
+}
+
+.flow-step:nth-child(1){animation-delay:0.2s;}
+.flow-step:nth-child(2){animation-delay:0.4s;}
+.flow-step:nth-child(3){animation-delay:0.6s;}
+.flow-step:nth-child(4){animation-delay:0.8s;}
+.flow-step:nth-child(5){animation-delay:1.0s;}
+.flow-step:nth-child(6){animation-delay:1.2s;}
+.flow-step:nth-child(7){animation-delay:1.4s;}
+.flow-step:nth-child(8){animation-delay:1.6s;}
+.flow-step:nth-child(9){animation-delay:1.8s;}
+.flow-step:nth-child(10){animation-delay:2.0s;}
+
+@keyframes fadeIn{
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+.flow{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+.flow div{
+    background:#0d1117;
+    padding:10px;
+    border-left:4px solid #58a6ff;
+}
+
+.btn{
+    background:transparent;
+    color:#58a6ff;
+    border:1px solid #30363d;
+    padding:6px 12px;
+    cursor:pointer;
+    border-radius:6px;
+}
+
+.btn:hover{
+    background:#21262d;
+}
+
+details{
+    margin-top:10px;
+    border:1px solid #30363d;
+    border-radius:6px;
+    padding:10px;
+}
+
+summary{
+    cursor:pointer;
+    color:#58a6ff;
+}
+
+pre{
+    background:#0d1117;
+    padding:15px;
+    border-radius:6px;
+    overflow-x:auto;
+}
+
+.demo-img{
+    width:100%;
+    margin-top:10px;
+    border-radius:6px;
+    border:1px solid #30363d;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+table th,
+table td{
+    border:1px solid #30363d;
+    padding:8px;
+}
+
+table th{
+    background:#21262d;
+}
+
+.highlight{
+    color:#58a6ff;
+    font-weight:bold;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>BOM 檢驗紀錄自動搜尋工具</h1>
+
+<div class="card">
+
+<h2>工具在幫我做什麼？</h2>
+
+<ul>
+<li>整理 BOM 中所有 SN(移除重複SN)</li>
+<li>建立搜尋SN清單(加快後面搜尋的速度)</li>
+<li>搜尋檢驗紀錄檔案位置</li>
+<li>建立對應檢驗紀錄路徑</li>
+<li>自動讀取檢驗結果</li>
+<li>輸出 Summary 報表</li>
+</ul>
+
+<p>
+👉 原本需要人工逐筆搜尋的工作，改由 VBA 自動完成。
+</p>
+
+</div>
+
+<div class="card">
+
+<h2>為什麼會想開發這個工具？</h2>
+
+<p>
+常常需要從 BOM 整理 SN，
+再到檢驗紀錄資料夾搜尋對應資料。
+</p>
+
+<p>
+由於資料量很多，而且資料夾層數較深，
+人工搜尋需要花費不少時間，
+也容易因為看錯資料而重新查找。
+</p>
+
+<p>
+因此希望利用 VBA 將重複性的工作自動化，
+減少搜尋時間並提高整理效率。
+</p>
+
+</div>
+
+<div class="card">
+
+<h2>原本的作業方式</h2>
+
+<div class="flow">
+
+<div>① 開啟 BOM 檔案</div>
+
+<div>② 整理重複的 SN</div>
+
+<div>③ 到檢驗紀錄資料夾搜尋(有些SN可能沒有檢驗紀錄，會浪費時間在查找)</div>
+
+<div>④ 一層一層打開資料夾</div>
+
+<div>⑤ 找到對應 Excel</div>
+
+<div>⑥ 開啟檔案</div>
+
+<div>⑦ 找 檢驗結果再填入</div>
+
+<div>⑧ 查看 C7</div>
+
+<div>⑨ 整理結果</div>
+
+</div>
+
+<p>
+👉 當資料量增加時，整體處理時間會明顯拉長。
+</p>
+
+</div>
+
+<div class="card">
+
+<h2>自動處理流程</h2>
+
+<div class="flow">
+
+<div class="flow-step">① 選擇 BOM 檔案</div>
+
+<div class="flow-step">② 讀取所有工作表</div>
+
+<div class="flow-step">③ 擷取  SN</div>
+
+<div class="flow-step">④ 建立唯一 SN 清單</div>
+
+<div class="flow-step">⑤ 搜尋檢驗紀錄資料夾</div>
+
+<div class="flow-step">⑥ 比對檔名與 SN</div>
+
+<div class="flow-step">⑦ 建立檢驗紀錄完整路徑，方便回查資料</div>
+
+<div class="flow-step">⑧ 讀取檢驗紀錄</div>
+
+<div class="flow-step">⑨ 將記錄填入summary</div>
+
+
+</div>
+
+</div>
+
+<div class="card">
+
+<h2>這個工具可以做什麼？</h2>
+
+<ul>
+
+<li>大幅減少原先查詢資料的步驟</li>
+<li>從原先的一個一個資料夾找檢驗結果</li>
+<li>改為自動輸出結果</li>
+
+
+</ul>
+
+</div>
+
+<div class="card">
+
+<h2>開發過程遇到的問題</h2>
+
+<h3>問題一：搜尋速度太慢</h3>
+
+<p>
+最早版本會逐層搜尋所有資料夾，
+資料量增加後搜尋時間非常久。
+</p>
+
+<p>
+後續改成建立檔案索引方式，
+讓搜尋速度明顯提升。
+</p>
+
+<hr>
+
+<h3>問題二：目標 Sheet 名稱不一致</h3>
+
+<p>
+部分檔案使用 DataSheet，
+部分檔案使用 DATASHEET。
+</p>
+
+<p>
+因此增加不同命名方式判斷，
+提高讀取成功率。
+</p>
+
+<hr>
+
+<h3>問題三：檢驗結果 查詢速度過慢</h3>
+
+<p>
+一次讀取大量檔案時，
+Excel 會長時間沒有回應。
+</p>
+
+<p>
+後續新增 Batch 處理機制，
+每次固定處理部分資料。
+</p>
+
+</div>
+
+<div class="card">
+
+<h2>優化紀錄</h2>
+
+<ul>
+
+<li>建立唯一 SN 清單</li>
+
+<li>加入檔案索引機制</li>
+
+<li>改成檔名直接比對 SN</li>
+
+<li>路徑不存在時回傳 NA</li>
+
+<li>NA 不再執行 檢驗紀錄 查詢</li>
+
+<li>支援 DataSheet / DATASHEET</li>
+
+<li>新增 FillC7Values_Batch</li>
+
+<li>減少重複開啟檔案</li>
+
+<li>降低無效搜尋次數</li>
+
+</ul>
+
+</div>
+
+<div class="card">
+
+<h2>📸 操作 Demo</h2>
+
+<h3>Step 1：選擇 BOM</h3>
+demo5-1.png
+
+<h3>Step 2：選擇檢驗紀錄資料夾</h3>
+demo5-2.png
+
+<h3>Step 3：開始搜尋路徑</h3>
+demo5-3.png
+
+<h3>Step 4：執行 檢驗紀錄 查詢</h3>
+demo5-4.png
+
+<h3>Step 5：最終Summary</h3>
+demo5-5.png
+
+</div>
+
+<div class="card">
+
+<h2>Summary 輸出結果</h2>
+
+<table>
+
+<tr>
+<th>欄位</th>
+<th>用途</th>
+</tr>
+
+<tr>
+<td>A</td>
+<td>SN</td>
+</tr>
+
+<tr>
+<td>U</td>
+<td>檔案路徑</td>
+</tr>
+
+<tr>
+<td>V</td>
+<td>檢驗紀錄結果</td>
+</tr>
+
+</table>
+
+
+
+</div>
+
+<div class="card">
+
+<h2>實際效果</h2>
+
+<p>
+原本：
+需要逐筆搜尋 SN 對應資料。
+</p>
+
+<p>
+現在：
+工具可以自動建立路徑與結果清單。
+</p>
+
+<p class="highlight">
+大量減少重複搜尋時間。
+</p>
+
+</div>
+
+<div class="card">
+
+<h2>程式在做什麼（簡單說）</h2>
+
+<ul>
+
+<li>讀取所有工作表</li>
+
+<li>擷取 SN</li>
+
+<li>建立 Summary</li>
+
+<li>搜尋資料夾</li>
+
+<li>建立檔案索引</li>
+
+<li>檔名比對 SN</li>
+
+<li>讀取 Datasheet</li>
+
+<li>取得檢驗紀錄結果</li>
+
+</ul>
+
+<button class="btn" onclick="toggleAll()">
+展開 / 收合 程式碼
+</button>
+
+<details class="code-block">
+
+<summary>建立唯一SN清單</summary>
+
+<pre><code>
+Option Explicit
+
+Public Sub CollectUniqueSN(ByVal BomFilePath As String)
+
+    Dim wbBom As Workbook
+    Dim wsBom As Worksheet
+    Dim wsSummary As Worksheet
+
+    Dim LastRow As Long
+    Dim r As Long
+    Dim NextRow As Long
+
+    Dim SN As String
+    Dim dict As Object
+
+    On Error GoTo ErrorHandler
+
+    Set dict = CreateObject("Scripting.Dictionary")
+
+    Set wsSummary = ThisWorkbook.Worksheets("Summary")
+
+    Set wbBom = Workbooks.Open(BomFilePath, ReadOnly:=True)
+
+    'Summary從第3列開始寫資料
+    NextRow = 3
+
+    '掃描所有工作表
+    For Each wsBom In wbBom.Worksheets
+
+        LastRow = wsBom.Cells(wsBom.Rows.Count, "D").End(xlUp).Row
+
+        '從第3列開始
+        For r = 3 To LastRow
+
+            SN = Trim(CStr(wsBom.Cells(r, "D").Value))
+
+            'SN空白跳過
+            If Len(SN) > 0 Then
+
+                '保留第一次出現的SN
+                If Not dict.Exists(SN) Then
+
+                    dict.Add SN, True
+
+                    '複製A:T (包含格式)
+                    wsBom.Range( _
+                        wsBom.Cells(r, 1), _
+                        wsBom.Cells(r, 20) _
+                    ).Copy Destination:=wsSummary.Cells(NextRow, 1)
+
+                    NextRow = NextRow + 1
+
+                End If
+
+            End If
+
+        Next r
+
+    Next wsBom
+
+    wbBom.Close SaveChanges:=False
+
+    MsgBox "唯一SN整理完成，共 " & dict.Count & " 筆資料。", vbInformation
+
+    Exit Sub
+
+ErrorHandler:
+
+    If Not wbBom Is Nothing Then
+        wbBom.Close SaveChanges:=False
+    End If
+
+    MsgBox "CollectUniqueSN 錯誤：" & vbCrLf & _
+           Err.Number & vbCrLf & _
+           Err.Description, vbCritical
+
+End Sub
+
+
+</code></pre>
+
+</details>
+
+<details class="code-block">
+
+<summary>建立對應檢驗紀錄路徑</summary>
+
+<pre><code>
+Option Explicit
+
+Public Sub SearchInspectionFiles(ByVal RootFolder As String)
+
+    Dim wsSummary As Worksheet
+    Dim LastRow As Long
+    Dim r As Long
+    Dim SN As String
+
+    Dim FileIndex As Object
+
+    Set wsSummary = ThisWorkbook.Worksheets("Summary")
+
+    Application.ScreenUpdating = False
+    Application.StatusBar = "建立檔案索引中..."
+
+    Set FileIndex = BuildFileIndex(RootFolder)
+
+    LastRow = wsSummary.Cells(wsSummary.Rows.Count, "D").End(xlUp).Row
+
+    For r = 3 To LastRow
+
+        SN = UCase(Trim(CStr(wsSummary.Cells(r, "D").Value)))
+
+        If SN <> "" Then
+
+            If FileIndex.Exists(SN) Then
+
+                wsSummary.Cells(r, "U").Value = FileIndex(SN)
+                wsSummary.Cells(r, "U").WrapText = True
+
+            Else
+
+                wsSummary.Cells(r, "U").Value = "NA"
+
+            End If
+
+        End If
+
+        If r Mod 50 = 0 Then
+            Application.StatusBar = _
+            "搜尋中... " & r & "/" & LastRow
+            DoEvents
+        End If
+
+    Next r
+
+    Application.StatusBar = False
+    Application.ScreenUpdating = True
+
+    MsgBox "路徑搜尋完成"
+
+End Sub
+
+Private Function BuildFileIndex(ByVal RootFolder As String) As Object
+
+    Dim dict As Object
+
+    Dim fso As Object
+    Dim MainFolder As Object
+    Dim SubFolder As Object
+    Dim FileObj As Object
+
+    Dim FileNameOnly As String
+    Dim FullPath As String
+
+    Set dict = CreateObject("Scripting.Dictionary")
+
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    Set MainFolder = fso.GetFolder(RootFolder)
+
+    For Each SubFolder In MainFolder.SubFolders
+
+        For Each FileObj In SubFolder.Files
+
+            If LCase(fso.GetExtensionName(FileObj.Name)) = "xlsx" Then
+
+                FileNameOnly = UCase(fso.GetBaseName(FileObj.Name))
+                FullPath = FileObj.Path
+
+                If dict.Exists(FileNameOnly) Then
+
+                    dict(FileNameOnly) = _
+                    dict(FileNameOnly) & vbLf & FullPath
+
+                Else
+
+                    dict.Add FileNameOnly, FullPath
+
+                End If
+
+            End If
+
+        Next FileObj
+
+    Next SubFolder
+
+    Set BuildFileIndex = dict
+
+End Function
+
+
+
+</code></pre>
+
+</details>
+
+<details class="code-block">
+
+<summary>尋找和填入對應檢驗紀錄</summary>
+
+<pre><code>
+Option Explicit
+
+Public Sub FillC7Values()
+
+    Dim wsSummary As Worksheet
+    Dim LastRow As Long
+    Dim r As Long
+
+    Dim PathText As String
+    Dim PathArray As Variant
+
+    Dim ResultText As String
+    Dim ThisResult As String
+
+    Dim i As Long
+
+    Set wsSummary = ThisWorkbook.Worksheets("Summary")
+
+    LastRow = wsSummary.Cells(wsSummary.Rows.Count, "D").End(xlUp).Row
+
+    Application.ScreenUpdating = False
+
+    For r = 3 To LastRow
+
+        PathText = Trim(CStr(wsSummary.Cells(r, "U").Value))
+
+        If UCase(PathText) = "NA" Then
+
+            wsSummary.Cells(r, "V").Value = "沒有檔案"
+
+        Else
+
+            PathArray = Split(PathText, vbLf)
+
+            ResultText = ""
+
+            For i = LBound(PathArray) To UBound(PathArray)
+
+                If ResultText <> "" Then
+                    ResultText = ResultText & vbLf
+                End If
+
+                ThisResult = GetC7Value(Trim(CStr(PathArray(i))))
+
+                ResultText = ResultText & ThisResult
+
+            Next i
+
+            wsSummary.Cells(r, "V").Value = ResultText
+            wsSummary.Cells(r, "V").WrapText = True
+
+        End If
+
+    Next r
+
+    Application.ScreenUpdating = True
+
+    MsgBox "V欄完成"
+
+End Sub
+Private Function GetC7Value(ByVal FilePath As String) As String
+
+    Dim wb As Workbook
+    Dim ws As Worksheet
+
+    Dim TargetIndex As Long
+    Dim DatasheetFound As Boolean
+
+    On Error GoTo OpenFail
+
+    Application.AskToUpdateLinks = False
+
+    Set wb = Workbooks.Open( _
+                Filename:=FilePath, _
+                UpdateLinks:=0, _
+                ReadOnly:=True, _
+                IgnoreReadOnlyRecommended:=True, _
+                AddToMru:=False)
+
+    DatasheetFound = False
+
+    '====================================
+    ' 找 DATASHEET (不分大小寫)
+    '====================================
+    For TargetIndex = 1 To wb.Worksheets.Count
+
+        If UCase(Trim(wb.Worksheets(TargetIndex).Name)) = "DATASHEET" Then
+
+            DatasheetFound = True
+            Exit For
+
+        End If
+
+    Next TargetIndex
+
+    '====================================
+    ' 找不到 DATASHEET
+    '====================================
+    If DatasheetFound = False Then
+
+        GetC7Value = "無Datasheet"
+
+        wb.Close False
+
+        Exit Function
+
+    End If
+
+    '====================================
+    ' DATASHEET 是第一頁
+    '====================================
+    If TargetIndex = 1 Then
+
+        GetC7Value = "無Datasheet"
+
+        wb.Close False
+
+        Exit Function
+
+    End If
+
+    On Error GoTo ReadFail
+
+    Set ws = wb.Worksheets(TargetIndex - 1)
+
+    '====================================
+    ' C7 判斷
+    '====================================
+    If Trim(CStr(ws.Range("C7").Text)) = "" Then
+
+        GetC7Value = "C空白"
+
+    Else
+
+        GetC7Value = CStr(ws.Range("C7").Text)
+
+    End If
+
+    wb.Close False
+
+    Exit Function
+
+'====================================
+' 開檔失敗
+'====================================
+OpenFail:
+
+    GetC7Value = "檔案開啟失敗"
+
+    On Error Resume Next
+
+    If Not wb Is Nothing Then
+        wb.Close False
+    End If
+
+    Exit Function
+
+'====================================
+' 讀取失敗
+'====================================
+ReadFail:
+
+    GetC7Value = "無法讀取excel"
+
+    On Error Resume Next
+
+    If Not wb Is Nothing Then
+        wb.Close False
+    End If
+
+End Function
+
+Public Sub FillC7Values_Batch()
+
+    Dim wsSummary As Worksheet
+
+    Dim StartRow As Long
+    Dim EndRow As Long
+    Dim LastRow As Long
+
+    Dim r As Long
+
+    Dim PathText As String
+    Dim PathArray As Variant
+
+    Dim ResultText As String
+    Dim ThisResult As String
+
+    Dim i As Long
+
+    Set wsSummary = ThisWorkbook.Worksheets("Summary")
+
+    LastRow = wsSummary.Cells(wsSummary.Rows.Count, "D").End(xlUp).Row
+
+    '=================================================
+    ' X1保存目前進度
+    '=================================================
+    If wsSummary.Range("X1").Value = "" Then
+
+        StartRow = 3
+
+    Else
+
+        StartRow = CLng(wsSummary.Range("X1").Value)
+
+    End If
+
+    If StartRow > LastRow Then
+
+        MsgBox "全部完成！", vbInformation
+        Exit Sub
+
+    End If
+
+    EndRow = StartRow + 9
+
+    If EndRow > LastRow Then
+        EndRow = LastRow
+    End If
+
+    Application.ScreenUpdating = False
+
+    For r = StartRow To EndRow
+
+        PathText = Trim(CStr(wsSummary.Cells(r, "U").Value))
+
+        If UCase(PathText) = "NA" Then
+
+            wsSummary.Cells(r, "V").Value = "沒有檔案"
+
+        Else
+
+            PathArray = Split(PathText, vbLf)
+
+            ResultText = ""
+
+            For i = LBound(PathArray) To UBound(PathArray)
+
+                If ResultText <> "" Then
+                    ResultText = ResultText & vbLf
+                End If
+
+                ThisResult = GetC7Value(Trim(CStr(PathArray(i))))
+
+                ResultText = ResultText & ThisResult
+
+            Next i
+
+            wsSummary.Cells(r, "V").Value = ResultText
+            wsSummary.Cells(r, "V").WrapText = True
+
+        End If
+
+    Next r
+
+    Application.ScreenUpdating = True
+
+    wsSummary.Range("X1").Value = EndRow + 1
+
+    MsgBox "完成列數：" & StartRow & " ~ " & EndRow, vbInformation
+
+End Sub
+
+</code></pre>
+
+</details>
+
+</div>
+
+<div class="card">
+
+<h2>使用限制</h2>
+
+<ul>
+
+<li>BOM 格式需完全一致，不支援不同表頭的格式</li>
+
+<li>SN 位子需要固定(目前設定在D欄位)</li>
+
+<li>檔名需符合命名規則(含有完整SN)</li>
+
+<li>檔案內需存在 Datasheet(判斷檢驗結果位子)</li>
+
+
+
+</ul>
+
+</div>
+
+<div class="card">
+
+<h2>開發心得</h2>
+
+<p>
+這是實習期間開發的 VBA 自動化工具。
+</p>
+
+<p>
+一開始只是希望減少人工搜尋工作，
+後來逐步加入路徑搜尋(確保資料正確性)、
+自動填入檢驗結果等
+</p>
+
+<p>
+開發過程中遇到搜尋速度、
+檔案命名方式以及大量資料處理等問題，
+透過不斷測試與優化，
+最終完成目前版本。
+</p>
+
+<p>
+雖然還有許多可以改善的地方，
+但已經能協助完成大部分原本需要人工執行的工作。
+</p>
+
+</div>
+
+<div class="card">
+
+<h2>這個工具的價值</h2>
+
+<ul>
+
+<li>減少重複查找工作</li>
+
+<li>提高資料整理效率</li>
+
+<li>快速找到對應檔案</li>
+
+<li>降低人工操作失誤</li>
+
+<li>建立固定整理流程</li>
+
+<li>方便後續分析與追蹤</li>
+
+</ul>
+
+</div>
+
+</div>
+
+<script>
+
+function toggleAll(){
+
+const blocks=document.querySelectorAll(".code-block");
+
+blocks.forEach(d=>{
+d.open=!d.open;
+});
+
+}
+
+</script>
+
+</body>
+</html>
